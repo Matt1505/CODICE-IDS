@@ -5,12 +5,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import Server.DBMSBoundary;
 import client.Altro.PageControl;
 import client.GeneralClasses.AlertBoundary;
 import client.GeneralClasses.Entities.ContenutoEntity;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.layout.FlowPane;
+
+import java.util.HashMap;
 
 public class HomePageControl {
     private HomePageBoundary hb;
@@ -205,6 +212,7 @@ public class HomePageControl {
 
   public void abilitaRiodinamentoContenuti(){
 
+    this.hb.EnableSaveButton();
     int numberOfCards = this.hb.getNumberOfCards();
     for(int i=0; i<numberOfCards; i++){
         if(i==0 )
@@ -222,6 +230,7 @@ public class HomePageControl {
     FlowPane resourcesContainer = this.hb.getResourcesContainer();
     int numberOfCards = resourcesContainer.getChildren().size();
     List<ContenutoEntity> contenutiAggiornati = new ArrayList<>();
+
     for(int i=0; i<numberOfCards; i++){
         VBox card = (VBox) resourcesContainer.getChildren().get(i);
         ContenutoEntity risorsa = (ContenutoEntity) card.getUserData();
@@ -237,11 +246,16 @@ public class HomePageControl {
         e.printStackTrace();
         
     }
-    
 
   }
 
   public void disabilitaRiodinamentoContenuti(){
+    int numberOfCards = this.hb.getNumberOfCards();
+    this.hb.DisableSaveButton();
+    for(int i=0; i<numberOfCards; i++){
+        this.hb.impostaStatoFrecceCardSpecifici(i, false, false);
+        this.hb.nascondiFrecceCardSpecifici(i);
+    }
 
   }
 

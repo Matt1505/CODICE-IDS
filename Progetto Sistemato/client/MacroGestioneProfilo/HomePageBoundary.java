@@ -8,7 +8,7 @@ import javafx.scene.paint.Color;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
-import javax.swing.plaf.synth.Region;
+
 
 import client.GeneralClasses.Entities.ContenutoEntity;
 import javafx.geometry.Pos;
@@ -29,7 +29,9 @@ public class HomePageBoundary {
     private Button btnRiordinaContenuti;
     private Button btnGestioneProfilo;
     private Button btnModificaProfilo;
-    private TextField txtCercaUtenti;      
+    private Button btnSalva;
+    private TextField txtCercaUtenti;    
+      
 
     public HomePageBoundary(String email) {
         this.email = email;
@@ -81,8 +83,10 @@ public class HomePageBoundary {
         btnModificaInTestata.setOnMouseExited(e -> btnModificaInTestata.setStyle("-fx-background-color: #F0F4F8; -fx-text-fill: #091B33; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 15; -fx-padding: 5 8; -fx-font-weight: bold;"));
         btnModificaInTestata.setOnAction(event -> clickModificaFotoProfilo());
 
-        Button btnSalva= new Button("SALVA");
+        btnSalva= new Button("SALVA");
         btnSalva.setStyle("-fx-background-color: #F0F4F8; -fx-text-fill: #091B33; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 15; -fx-padding: 5 8; -fx-font-weight: bold;");
+        btnSalva.setDisable(true);
+        btnSalva.setVisible(false);
         btnSalva.setOnMouseEntered(e -> btnSalva.setStyle("-fx-background-color: #091B33; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 15; -fx-padding: 5 8; -fx-font-weight: bold;"));
         btnSalva.setOnMouseExited(e -> btnSalva.setStyle("-fx-background-color: #F0F4F8; -fx-text-fill: #091B33; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 15; -fx-padding: 5 8; -fx-font-weight: bold;"));
         btnSalva.setOnAction(event -> caricaNuovoOrdinamento());
@@ -136,7 +140,7 @@ public class HomePageBoundary {
         this.txtCercaUtenti.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #C4D1DF; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 9; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;");
         this.txtCercaUtenti.setOnAction(event -> cercaUtenti(txtCercaUtenti.getText()));
 
-        topBar.getChildren().addAll(this.btnCaricaFile, this.btnCondividiContenuti, this.btnRiordinaContenuti, this.btnGestioneProfilo, this.btnModificaProfilo, this.txtCercaUtenti);
+        topBar.getChildren().addAll(this.btnCaricaFile, this.btnCondividiContenuti, this.btnRiordinaContenuti, this.btnGestioneProfilo, this.btnModificaProfilo,this.btnSalva, this.txtCercaUtenti);
         header.getChildren().addAll(topHeaderRow, topBar);
 
         // --- NUOVA SEZIONE: DESCRIZIONE PROFILO UTENTE (SOPRA AI CONTENUTI) ---
@@ -445,8 +449,34 @@ public class HomePageBoundary {
 
 public void caricaNuovoOrdinamento() {
     this.hc.salvaNuovoOrdinamento();
-    
+
 }   
+
+public void EnableSaveButton(){
+    this.btnSalva.setDisable(false);
+    this.btnSalva.setVisible(true);
+}
+
+public void DisableSaveButton(){
+    this.btnSalva.setDisable(true);
+    this.btnSalva.setVisible(false);
+}   
+
+
+public void nascondiFrecceCardSpecifici(int i){
     
+    if (i < 0 || i >= this.resourcesContainer.getChildren().size()) return;
+    VBox card = (VBox) this.resourcesContainer.getChildren().get(i);
+    VBox infoArea = (VBox) card.getChildren().get(1);
+    HBox actionBox = (HBox) infoArea.getChildren().get(2);
+    
+    Button btnFrecciaSinistra = (Button) actionBox.getChildren().get(0);
+    Button btnFrecciaDestra = (Button) actionBox.getChildren().get(1);
+    
+    btnFrecciaSinistra.setVisible(false);
+    btnFrecciaSinistra.setManaged(false);
+    btnFrecciaDestra.setVisible(false);
+    btnFrecciaDestra.setManaged(false);
+}
 
 }
