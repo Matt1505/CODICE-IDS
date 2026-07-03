@@ -61,14 +61,9 @@ public class LoginControl {
 
     private void sendRequestCredentials(Object windowContext) {
         if (this.dbBound.getCredentials(this.email, this.pw)) {
-            
-            if (this.email.equalsIgnoreCase("mattmo1505@gmail.com")) {
-            this.redirectToHomepage();
-            return;
-            }
-
-
-            this.createOTP();
+            this.createOTP(windowContext);
+            OTPBound otpBound = new OTPBound(this, this.email);
+            otpBound.visualizza(windowContext);
         } else {
             this.ab.alert("ERRORE\n Email o Password inserite non sono corrette");
         }
