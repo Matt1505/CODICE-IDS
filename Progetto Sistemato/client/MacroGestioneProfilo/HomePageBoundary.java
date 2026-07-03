@@ -8,7 +8,8 @@ import javafx.scene.paint.Color;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
-
+import java.util.ArrayList;
+import java.util.List;
 
 import client.GeneralClasses.Entities.ContenutoEntity;
 import javafx.geometry.Pos;
@@ -18,6 +19,7 @@ import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 import client.GeneralClasses.Entities.StudenteEntity;
+import client.MacroGestioneCondivisioni.SendFileControl;
 
 public class HomePageBoundary {
     private String email;
@@ -31,11 +33,13 @@ public class HomePageBoundary {
     private Button btnModificaProfilo;
     private Button btnSalva;
     private TextField txtCercaUtenti;    
+    private SendFileControl sendFileControl;
       
 
     public HomePageBoundary(String email) {
         this.email = email;
         this.hc = new HomePageControl(email, this);
+        this.sendFileControl = new SendFileControl();
         this.rootContainer = new VBox(0); 
         this.rootContainer.setStyle("-fx-background-color: #F0F4F8;"); // Sfondo app
         
@@ -116,7 +120,7 @@ public class HomePageBoundary {
         this.btnCondividiContenuti.setStyle("-fx-background-color: #12305C; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13px;");
         this.btnCondividiContenuti.setOnMouseEntered(e -> this.btnCondividiContenuti.setStyle("-fx-background-color: #0A1C3A; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13px;"));
         this.btnCondividiContenuti.setOnMouseExited(e -> this.btnCondividiContenuti.setStyle("-fx-background-color: #12305C; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13px;"));
-        this.btnCondividiContenuti.setOnAction(event -> clickCondividiContenuti());
+        this.btnCondividiContenuti.setOnAction(event -> condividiContenutiOn());
 
         // Bottone RIORDINA CONTENUTI
         this.btnRiordinaContenuti = new Button("RIORDINA CONTENUTI");
@@ -208,7 +212,12 @@ public class HomePageBoundary {
 
     }
 
-    public void clickCondividiContenuti() {}
+    public void condividiContenutiOn() {
+
+        sendFileControl.abilitaSelezione();
+
+
+    }
     public void cercaUtenti(String query) {
         if(query != null && !query.trim().isEmpty()) { }
     }
@@ -342,14 +351,14 @@ public class HomePageBoundary {
         btnFrecciaSinistra.setDisable(true);
         btnFrecciaSinistra.setVisible(false); // <<-- AGGIUNGI QUESTO: Nasconde la freccia all'avvio
         btnFrecciaSinistra.setManaged(false); // <<-- AGGIUNGI QUESTO: Rimuove l'ingombro visivo nel layout
-        btnFrecciaSinistra.setOnAction(e -> this.hc.invertiOrdineRisorse(1, card));
+        btnFrecciaSinistra.setOnAction(e -> this.hc.invertiOrdineRisorse(1,(ContenutoEntity) card.getUserData()));
 
         Button btnFrecciaDestra = new Button("→");
         btnFrecciaDestra.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #12305C; -fx-text-fill: #12305C; -fx-font-weight: bold; -fx-cursor: hand; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 4 12;");
         btnFrecciaDestra.setDisable(true);
         btnFrecciaDestra.setVisible(false); // <<-- AGGIUNGI QUESTO: Nasconde la freccia all'avvio
         btnFrecciaDestra.setManaged(false); // <<-- AGGIUNGI QUESTO: Rimuove l'ingombro visivo nel layout
-        btnFrecciaDestra.setOnAction(e -> this.hc.invertiOrdineRisorse(2, card));
+        btnFrecciaDestra.setOnAction(e -> this.hc.invertiOrdineRisorse(2, (ContenutoEntity) card.getUserData()));
         // Inseriamo le frecce come primi elementi dell'actionBox
         actionBox.getChildren().addAll(btnFrecciaSinistra, btnFrecciaDestra);
 
@@ -412,15 +421,17 @@ public class HomePageBoundary {
         btnFrecciaDestra.setDisable(!abilitaDestra);
     }
 
-    public VBox getCardByIndex(int index) {
+    public ContenutoEntity getCardByIndex(int index) {
         if (index < 0 || index >= this.resourcesContainer.getChildren().size()) return null;
-        return (VBox) this.resourcesContainer.getChildren().get(index);
+        VBox cardBox = (VBox) this.resourcesContainer.getChildren().get(index);
+        return (ContenutoEntity) cardBox.getUserData();
     }
 
     public FlowPane getResourcesContainer() {
         return this.resourcesContainer;
     }
-  public void scambiaCardNelContenitore(int indiceA, int indiceB) {
+
+    public void scambiaCardNelContenitore(int indiceA, int indiceB) {
     if (indiceA < 0 || indiceB < 0 || 
         indiceA >= this.resourcesContainer.getChildren().size() || 
         indiceB >= this.resourcesContainer.getChildren().size()) {
@@ -448,9 +459,31 @@ public class HomePageBoundary {
 }
 
 public void caricaNuovoOrdinamento() {
-    this.hc.salvaNuovoOrdinamento();
+    ArrayList<ContenutoEntity> nuovoOrdinamento = new ArrayList<>();
+    for (javafx.scene.Node node : this.resourcesContainer.getChildren()) {
+        if (node instanceof VBox) {
+            VBox card = (VBox) node;
+            ContenutoEntity contenuto = (ContenutoEntity) card.getUserData();
+            if (contenuto != null) {
+                nuovoOrdinamento.add(contenuto);
+            }
+        }
+    }
+    this.hc.salvaNuovoOrdinamento(nuovoOrdinamento);
 
 }   
+
+
+public int getResourceIndex(ContenutoEntity risorsa) {
+    for (int i = 0; i < this.resourcesContainer.getChildren().size(); i++) {
+        VBox card = (VBox) this.resourcesContainer.getChildren().get(i);
+        ContenutoEntity contenuto = (ContenutoEntity) card.getUserData();
+        if (contenuto != null && contenuto.equals(risorsa)) {
+            return i;
+        }
+    }
+    return -1; // Risorsa non trovata
+}
 
 public void EnableSaveButton(){
     this.btnSalva.setDisable(false);

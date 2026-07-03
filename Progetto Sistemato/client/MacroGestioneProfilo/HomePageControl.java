@@ -225,17 +225,13 @@ public class HomePageControl {
 
   }
 
-  public void salvaNuovoOrdinamento(){
+  public void salvaNuovoOrdinamento(List<ContenutoEntity> contenutiAggiornati){
     HashMap<Integer,Integer> mappaPosizioni = new HashMap<>();
-    FlowPane resourcesContainer = this.hb.getResourcesContainer();
-    int numberOfCards = resourcesContainer.getChildren().size();
-    List<ContenutoEntity> contenutiAggiornati = new ArrayList<>();
-
+    int numberOfCards = contenutiAggiornati.size();
+    
     for(int i=0; i<numberOfCards; i++){
-        VBox card = (VBox) resourcesContainer.getChildren().get(i);
-        ContenutoEntity risorsa = (ContenutoEntity) card.getUserData();
+        ContenutoEntity risorsa = contenutiAggiornati.get(i);
         mappaPosizioni.put(risorsa.getId(), risorsa.getPosizione());
-        contenutiAggiornati.add(risorsa);
     }
 
     try {
@@ -260,15 +256,13 @@ public class HomePageControl {
   }
 
 
-public void invertiOrdineRisorse(int d, VBox card) {
+public void invertiOrdineRisorse(int d, ContenutoEntity card) {
    // 1. Identifica l'indice di partenza fisso
-    int currentIndex = this.hb.getResourcesContainer().getChildren().indexOf(card);
+    int currentIndex = this.hb.getResourceIndex(card);
     if (currentIndex == -1) return; // Controllo di sicurezza se la card non viene trovata
-
-    ContenutoEntity risorsa = (ContenutoEntity) card.getUserData();
     int targetIndex = -1;
 
-    // 2. Determina l'indice di destinazione in base alla direzione
+    //Determina l'indice di destinazione in base alla direzione
     if (d == 1) { // Freccia Sinistra / Su
         if (currentIndex <= 0) return; // Giò è il primo elemento, ignora
         targetIndex = currentIndex - 1;
@@ -278,20 +272,21 @@ public void invertiOrdineRisorse(int d, VBox card) {
     }
 
     // 3. Recupera la card partner con cui effettuare lo scambio
-    VBox partnerCard = this.hb.getCardByIndex(targetIndex);
-    if (partnerCard == null) return;
-    ContenutoEntity partnerRisorsa = (ContenutoEntity) partnerCard.getUserData();
+    ContenutoEntity partnerRisorsa = this.hb.getCardByIndex(targetIndex);
+    if (partnerRisorsa == null) return;
+    
 
-    // 4. Scambio dati logico sulle Entity (Puro BCE)
-    int posIniziale = risorsa.getPosizione();
-    risorsa.setPosizione(partnerRisorsa.getPosizione());
+    //Scambio dati logico sulle Entity (Puro BCE)
+    int posIniziale = card.getPosizione();
+    card.setPosizione(partnerRisorsa.getPosizione());
     partnerRisorsa.setPosizione(posIniziale);
 
-    // 5. Richiesta alla Boundary di effettuare lo swap atomico sulla UI
+    //Richiesta alla Boundary di effettuare lo swap atomico sulla UI
     this.hb.scambiaCardNelContenitore(currentIndex, targetIndex);
-
-    // 6. Ricalcola lo stato visivo abilitato/disabilitato/visibile di tutte le frecce
+    
+    // Ricalcola lo stato visivo abilitato/disabilitato/visibile di tutte le frecce
     this.abilitaRiodinamentoContenuti();
+
 }
 
 
