@@ -7,12 +7,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
-import java.util.Map;
+
 
 import client.GeneralClasses.Entities.ContenutoEntity;
 import client.GeneralClasses.Entities.OTPEntity;
 import client.GeneralClasses.Entities.StudenteEntity;
 import client.GeneralClasses.*;
+
 
 
 public class DBMSBoundary {
@@ -235,7 +236,7 @@ public boolean inserisciContenuto(byte[] file, String titolo, String descrizione
 
 public List<ContenutoEntity> getResources(String email) {
         List<ContenutoEntity> userResources = new ArrayList<>();
-        String query = "SELECT file_blob, titolo, descrizione, tipo, posizione FROM contenuti WHERE studente_email = ? ORDER BY posizione ASC";
+        String query = "SELECT id,file_blob, titolo, descrizione, tipo, posizione FROM contenuti WHERE studente_email = ? ORDER BY posizione ASC";
 
         try (Connection conn = eseguiConnessione();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -244,13 +245,14 @@ public List<ContenutoEntity> getResources(String email) {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
+                    int id = rs.getInt("id");
                     byte[] file = rs.getBytes("file_blob");
                     String titolo = rs.getString("titolo");
                     String descrizione = rs.getString("descrizione");
                     String tipo = rs.getString("tipo");
                     int posizione = rs.getInt("posizione");
 
-                    userResources.add(new ContenutoEntity(file, titolo, descrizione, tipo, posizione));
+                    userResources.add(new ContenutoEntity(id, file, titolo, descrizione, tipo, posizione));
                 }
             }
         } catch (SQLException e) {
@@ -327,7 +329,7 @@ public List<ContenutoEntity> getResources(String email) {
         try (Connection conn = eseguiConnessione();
              PreparedStatement stmt = conn.prepareStatement(query)) {
              
-            for (Map.Entry<Integer, Integer> entry : mappaPosizioni.entrySet()) {
+            for (HashMap.Entry<Integer, Integer> entry : mappaPosizioni.entrySet()) {
                 int id = entry.getKey();
                 int nuovaPosizione = entry.getValue();
                 
