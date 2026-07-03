@@ -5,6 +5,7 @@ CREATE TABLE contenuti (
     tipo VARCHAR(50) NOT NULL,
     file_blob LONGBLOB NOT NULL,
     studente_email VARCHAR(255) NOT NULL,
+    posizione int ,
     FOREIGN KEY (studente_email) REFERENCES utenti(email) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
