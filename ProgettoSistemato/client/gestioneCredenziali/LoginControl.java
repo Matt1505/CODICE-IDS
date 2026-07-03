@@ -1,8 +1,5 @@
 package client.gestioneCredenziali;
 
-import javafx.application.Platform;
-import javafx.stage.Stage;
-import javafx.scene.Scene;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -15,6 +12,9 @@ import Server.mailServerBound;
 import client.GeneralClasses.AlertBoundary;
 import client.Altro.PageControl;
 import client.GeneralClasses.Entities.OTPEntity;
+import client.MacroGestioneProfilo.HomePageBoundary;
+import client.MacroGestioneProfilo.HomePageControl;
+import javafx.application.Platform;
 
 public class LoginControl {
 
@@ -23,25 +23,27 @@ public class LoginControl {
     private int wrongAttempsCounter = 0;
     private String email;
     private String pw;
-    private Stage currentStage;
     private AlertBoundary ab = new AlertBoundary();
-
+    private LoginBound lb;
     // Costruttore per ricevere lo Stage corrente dalla UI
-    public LoginControl(Stage currentStage) {
-        this.currentStage = currentStage;
+    public LoginControl() {
+        
     }
 
-    public void checkEmptyForm(String email, String pw) {
+    public void checkEmptyForm(String email, String pw,Object windowContext) {
         if (email.isEmpty() || pw.isEmpty()) {
             this.ab.alert("ERRORE:Compila tutti i campi !");
             return;
         }
         this.email = email;
         this.pw = pw;
-        this.hashPass();
+        this.hashPass(windowContext);
+        
     }
 
-    private void hashPass() {
+    
+
+    private void hashPass(Object windowContext) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");
             byte[] messageDigest = md.digest(this.pw.getBytes());
@@ -51,13 +53,13 @@ public class LoginControl {
                 hashtext = "0" + hashtext;
             }
             this.pw = hashtext;
-            this.sendRequestCredentials();
+            this.sendRequestCredentials(windowContext);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void sendRequestCredentials() {
+    private void sendRequestCredentials(Object windowContext) {
         if (this.dbBound.getCredentials(this.email, this.pw)) {
             
             if (this.email.equalsIgnoreCase("mattmo1505@gmail.com")) {
@@ -72,7 +74,7 @@ public class LoginControl {
         }
     }
 
-    private void createOTP() {
+    private void createOTP(Object windowContext) {
         System.out.println("Generazione codice OTP in corso...");
         Random random = new Random();
         int number = 100000 + random.nextInt(900000);    
@@ -86,11 +88,7 @@ public class LoginControl {
     private void saveOTP(int OTP) {
         try {
             dbBound.addOtp(this.email, String.valueOf(OTP));
-            Platform.runLater(() -> {
-                this.currentStage.setTitle("Verifica Sicurezza (OTP)");
-                // Passaggio corretto del parametro email richiesto dalla nuova firma
-                this.currentStage.setScene(OTPBound.createOTPScene(this.currentStage, this, this.email));
-            });
+            
             this.sendOTP(String.valueOf(OTP));
             
         } catch (SQLException e) {
@@ -115,17 +113,17 @@ public class LoginControl {
     }
 
     // Firma corretta per combaciare con l'invocazione polimorfica proveniente da OTPBound
-    public void requestGeneratedOTP(String email, String otp) {
+    public void requestGeneratedOTP(String email, String otp,Object windowContext) {
         try {
              // Invocazione corretta del metodo di verifica sul risultato dell'istanza dell'entità
              this.email = email; 
-             verifyOTPs(dbBound.checkOTPExistance(this.email, otp));
+             verifyOTPs(dbBound.checkOTPExistance(this.email, otp),windowContext);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
     
-    public void verifyOTPs(OTPEntity otpDalDb) {
+    public void verifyOTPs(OTPEntity otpDalDb,Object windowContext) {
             if (otpDalDb != null) {
                 java.sql.Timestamp createdAt = otpDalDb.getTs();
                 long currentTime = System.currentTimeMillis();
@@ -134,12 +132,12 @@ public class LoginControl {
                             
                 if (diffMinutes <= 15) {
                     this.removeOTP(this.email);
-                    this.redirectToHomepage(); 
+                    this.redirectToHomepage(windowContext); 
                 } else {
                     this.ab.alert("ERRORE, il codice non è più valido, premi su OK per generarne uno nuovo");
                     this.setWrongAttemptsToZero();
                     this.removeOTP(this.email);
-                    this.createOTP();
+                    this.createOTP(windowContext);
                 }
             } else {
                 this.ab.alert("OTP errato, reinseriscilo");
@@ -149,33 +147,26 @@ public class LoginControl {
                     this.ab.alert("Raggiunti 3 tentativi errati, un nuovo codice è stato inviato.");
                     this.setWrongAttemptsToZero();
                     this.removeOTP(this.email);
-                    this.createOTP();
-                } else {
-                    Platform.runLater(() -> {
-                        this.currentStage.setTitle("Verifica Sicurezza (OTP)");
-                        // Passaggio corretto del parametro email richiesto dalla nuova firma
-                        this.currentStage.setScene(OTPBound.createOTPScene(this.currentStage, this, this.email));
-                    });
-                }
+                    this.createOTP(windowContext);
+                } 
             }
     }
+    public void redirectToHomepage(Object windowContext){
 
-    public void createLoginBoundary() {
-        Platform.runLater(() -> {
-            LoginBound loginBoundary = new LoginBound();
-            Scene loginScene = loginBoundary.getScene(this.currentStage);
-            this.currentStage.setTitle("Piattaforma AFAM - Accedi");
-            this.currentStage.setScene(loginScene);
-            this.currentStage.show();
-        });
+        HomePageControl hc = new HomePageControl(email);
+        hc.createHomePageBoundary(email, windowContext);
+
+    }
+
+    public void createLoginBoundary(Object windowContext) {
+        LoginBound lb= new LoginBound();
+        lb.visualizza(windowContext);
     }
 
     private void redirectToHomepage() {
-        PageControl pc = new PageControl(this.currentStage);
-        this.clickHome(pc);
+        HomePageBoundary hb= new HomePageBoundary(email);
+        hb.visualizza();
     }
 
-    private void clickHome(PageControl pc) {
-        pc.createHomePageBoundary(email);
-    }
+    
 }

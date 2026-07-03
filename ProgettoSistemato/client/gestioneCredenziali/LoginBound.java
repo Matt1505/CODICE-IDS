@@ -11,6 +11,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.application.Platform;
+
 
 public class LoginBound extends Application {
     // FUNZIONI E VARIABILI ORIGINALI CONSERVATE INTEGRALMENTE
@@ -19,40 +21,24 @@ public class LoginBound extends Application {
     private RegisterControl rc; 
     private Stage stage; 
 
-    public LoginBound(Stage stage) {
-        this.stage = stage;
+    public LoginBound() {
+            this.controller = new LoginControl();
+            this.rc= new RegisterControl();
     }
 
-    public LoginBound() {
-        this.controller = new LoginControl(new Stage());
-        // Costruttore vuoto per l'avvio dell'applicazione
-    }
+
 
     @Override
     public void start(Stage primaryStage) {
         this.stage = primaryStage; 
-        this.stage.setTitle("Piattaforma AFAM - Accedi"); // Titolo aggiornato
-        
-        this.controller = new LoginControl(this.stage);
-        this.rc = new RegisterControl(this.stage); 
-        
-        grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(15); 
-        grid.setVgap(15);
-        grid.setPadding(new Insets(45, 45, 45, 45)); 
-
-        mostraFormLogin();
-
-        // Leggermente allargata per ospitare il nuovo titolo elegante
-        Scene scene = new Scene(grid, 500, 450);
-        this.stage.setScene(scene);
-        this.stage.show();
+        this.visualizza(primaryStage);
     }
+        
+    
 
     public Scene getScene(Stage stage) {
-        this.controller = new LoginControl(stage);
-        this.rc = new RegisterControl(stage);
+        this.controller = new LoginControl();
+        this.rc = new RegisterControl();
         grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(15); grid.setVgap(15);
@@ -123,30 +109,42 @@ public class LoginBound extends Application {
     }
 
     private void nuovoAccount() {
-        this.rc.createRegisterBoundary();
+        this.rc.createRegisterBoundary(stage);
     }
     private void sendCredentials(String email, String pw) {
-        controller.checkEmptyForm(email, pw);
+        controller.checkEmptyForm(email, pw,this.stage);
     }
     
     public static void main(String[] args) {
         launch(args);
     }
 
-    public void visualizza() {
-        if (this.stage != null) {
-            grid = new GridPane(); 
+    public void visualizza(Object windowContext) {
+        if(windowContext instanceof Stage){
+            this.stage= (Stage) windowContext;
+            Platform.runLater(()->{
+            this.stage.setTitle("Piattaforma AFAM - Accedi"); // Titolo aggiornato
+            this.controller = new LoginControl();
+            this.rc = new RegisterControl(); 
+            
+            grid = new GridPane();
             grid.setAlignment(Pos.CENTER);
             grid.setHgap(15); 
             grid.setVgap(15);
-            grid.setPadding(new Insets(45, 45, 45, 45));
-            
-            mostraFormLogin(); 
-            
+            grid.setPadding(new Insets(45, 45, 45, 45)); 
+
+            mostraFormLogin();
+
+            // Leggermente allargata per ospitare il nuovo titolo elegante
             Scene scene = new Scene(grid, 500, 450);
-            this.stage.setTitle("Piattaforma AFAM - Accedi");
             this.stage.setScene(scene);
             this.stage.show();
-        }
+
+
+            });
+        
+        
+        }        
+        
     }
 }

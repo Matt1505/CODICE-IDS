@@ -1,5 +1,7 @@
 package client.gestioneCredenziali;
 
+import javax.swing.border.StrokeBorder;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -11,25 +13,39 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.application.Platform;
 
 public class OTPBound {
+    private RegisterControl registerController;
+    private LoginControl loginController;
+    private String email;
 
-    public OTPBound() {
-        
+    public OTPBound(RegisterControl rc,String email) {
+        this.registerController=rc;
+        this.email=email;
+
+    }
+
+    public OTPBound(LoginControl lc,String email){
+
+        this.loginController=lc;
+        this.email=email;
+
+    }
+
+
+    public void visualizza(Object windowContext){
+        if(windowContext instanceof Stage){
+            Stage stage=(Stage) windowContext;
+            Platform.runLater(()->{this.buildScene(stage, registerController, loginController, email);});
+                
+        }
+
+
     }
     
-    // Overloading per supportare il flusso di Registrazione (accetta email)
-    public static Scene createOTPScene(Stage stage, RegisterControl rc, String email) {
-        return buildScene(stage, rc, null, email);
-    }
 
-    // Overloading per supportare il flusso di Login (accetta email)
-    public static Scene createOTPScene(Stage stage, LoginControl lc, String email) {
-        return buildScene(stage, null, lc, email);
-    }
-
-    // Metodo privato centralizzato per evitare codice duplicato
-    private static Scene buildScene(Stage stage, RegisterControl rc, LoginControl lc, String email) {
+    private static void buildScene(Stage stage, RegisterControl rc, LoginControl lc, String email) {
         GridPane grid = new GridPane();
         // Sfondo coordinato in grigio-blu
         grid.setStyle("-fx-background-color: #F0F4F8;");
@@ -65,19 +81,22 @@ public class OTPBound {
 
         verifyBtn.setOnAction(e -> {
             // Invoca la funzione di ponte corretta passando il valore dell'OTP e l'email
-            sendOtpToControl(otpField.getText(), email, rc, lc);
+            sendOtpToControl(otpField.getText(), email, rc, lc,stage);
         });
 
         // Dimensione adattata per ospitare comodamente la nuova intestazione
-        return new Scene(grid, 420, 280);
+        Scene scene = new Scene(grid,420,320);
+        stage.setTitle("Verifica Sicurezza (OTP)");
+        stage.setScene(scene);
+        stage.show();
     }
 
     // Risolti gli errori 1 e 2: Utilizzo della firma esatta 'requestGeneratedOTP(email, codice)' definita nei Control
-    public static void sendOtpToControl(String inputOtp, String email, RegisterControl rc, LoginControl lc){
+    public static void sendOtpToControl(String inputOtp, String email, RegisterControl rc, LoginControl lc,Stage stage){
         if (rc != null) {
-            rc.requestGeneratedOTP(email, inputOtp);
+            rc.requestGeneratedOTP(email, inputOtp,stage);
         } else if (lc != null) {
-            lc.requestGeneratedOTP(email, inputOtp);
+            lc.requestGeneratedOTP(email, inputOtp,stage);
         }
     }
 }

@@ -91,7 +91,7 @@ public class CaricaFotoProfiloBound {
         if(fileSelezionato != null) {
             lblStatusFile.setText("File pronto: " + fileSelezionato.getName());
             // Passa l'intero file al controller per la memorizzazione temporanea
-            controller.mostraFormDatiContenuto(fileSelezionato);
+            controller.trasformaInBlob(fileSelezionato);
         }
     }
 
@@ -99,9 +99,7 @@ public class CaricaFotoProfiloBound {
     private void confermaCaricamentoFoto() {
         // Invoca il salvataggio coordinato passando i metadati della foto profilo
         
-            controller.aggiornaFotoProfilo();
-       
-        
+            controller.aggiornaFotoProfilo(this.lblStatusFile.getScene().getWindow());
     }
 
     // Navigazione: recupera lo stage e sfrutta il PageControl per tornare in Homepage
@@ -110,9 +108,9 @@ public class CaricaFotoProfiloBound {
         Stage stageCorrente = (Stage) lblStatusFile.getScene().getWindow();
         
         // Passiamo lo Stage al costruttore corretto di PageControl
-        PageControl pc = new PageControl(stageCorrente);
+        controller.createHomePageBoundary(email, stageCorrente);
         
-        // Creiamo la Home (che si occuperà anche di fare il visualizza)
-        pc.createHomePageBoundary(this.email);
+        
+        
     }
 }
