@@ -1,14 +1,16 @@
 package client.GeneralClasses.Entities;
 
 public class ContenutoEntity {
-
-private byte[] file;
+    private int id;
+    private byte[] file;
     private String titolo;
     private String descrizione;
     private String tipo;
     private int posizione;
 
-    public ContenutoEntity(byte[] file, String titolo, String descrizione, String tipo,int p) {
+    public ContenutoEntity(int id,byte[] file, String titolo, String descrizione, String tipo,int p) {
+       
+        this.id = id;
         this.file = file;
         this.titolo = titolo;
         this.descrizione = descrizione;
@@ -16,6 +18,9 @@ private byte[] file;
         this.posizione = p;
     }
 
+    public int getId() {
+        return id;
+    }
     public byte[] getFile() {
         return file;
     }
