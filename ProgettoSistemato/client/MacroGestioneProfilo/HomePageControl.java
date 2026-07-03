@@ -13,9 +13,7 @@ import Server.DBMSBoundary;
 import client.Altro.PageControl;
 import client.GeneralClasses.AlertBoundary;
 import client.GeneralClasses.Entities.ContenutoEntity;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import javafx.scene.layout.FlowPane;
+import client.GeneralClasses.Entities.StudenteEntity;
 
 import java.util.HashMap;
 
@@ -27,7 +25,7 @@ public class HomePageControl {
     private DBMSBoundary db;
     private AlertBoundary ab;
     private String tipo;
-    private VBox rootContainer;
+    private List<ContenutoEntity> contenuti;
 
     public HomePageControl(String e, HomePageBoundary boundary) {
         this.email = e;
@@ -35,22 +33,30 @@ public class HomePageControl {
         this.db = new DBMSBoundary();    // <<-- INIZIALIZZA IL DB
         this.ab = new AlertBoundary();  // <<-- INIZIALIZZA L'ALERT
     }
+
+
+    public HomePageControl(String e){
+        
+        this.email=e;
+        this.db= new DBMSBoundary();
+        this.ab= new AlertBoundary();
+
+    }
     public String getEmail() {
         return this.email;
     }
 
+    public void setContenuti(List<ContenutoEntity> contenuti) {
+        this.contenuti = contenuti;
+    }
+
     public void visualizza() {
-        this.cFileBound = new CaricamentoFileBound(this);
-        VBox caricamento=this.cFileBound.visualizza();
-        rootContainer = hb.getRootContainer();
-        
-        // Rimuoviamo la vecchia area delle risorse (indice 1) e inseriamo la form di caricamento
-       rootContainer.getChildren().clear(); 
-        rootContainer.getChildren().add(caricamento);
+        CaricamentoFileBound cfb = new CaricamentoFileBound(this);
+        this.hb.mostraPannelloCaricamentoFile(cfb);
         
     }
 
-    public void mostraFormDatiContenuto(File fileSelezionato){
+    public void trasformaInBlob(File fileSelezionato){
          if (fileSelezionato != null) {
             try {
                 this.fileBlob = Files.readAllBytes(fileSelezionato.toPath()); // Salva nei dati interni del Control
@@ -64,7 +70,7 @@ public class HomePageControl {
     }
 
         
-        public void salvaContenuto(String titolo, String descrizione) {
+        public void salvaContenuto(String titolo, String descrizione,Object windowC) {
         if (this.fileBlob == null) {
             this.ab.alert("Errore: Seleziona prima un file d'arte!");
             return;
@@ -76,13 +82,9 @@ public class HomePageControl {
             this.fileBlob = null;
             this.tipo = null;
 
-            // PRENDIAMO LO STAGE ATTUALE
-            Stage currentStage = (Stage) this.rootContainer.getScene().getWindow();
-
-            // RISOLUZIONE TRAMITE PAGECONTROL: 
-            // Inizializziamo PageControl passandogli lo stage in modo che possa fare il refresh completo dal DB
-            client.Altro.PageControl pc = new client.Altro.PageControl(currentStage);
-            this.clickHome(pc);
+           
+            client.Altro.PageControl pc = new client.Altro.PageControl();
+            this.clickHome(windowC);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -92,7 +94,8 @@ public class HomePageControl {
     public int getMaxPosizione() throws SQLException {
         return db.getMaxPosizione(this.email);
     }
-    public void aggiornaFotoProfilo() {
+
+    public void aggiornaFotoProfilo(Object windowContex) {
         if (this.fileBlob == null) {
             this.ab.alert("Errore: Seleziona prima un'immagine profilo!");
             return;
@@ -104,27 +107,22 @@ public class HomePageControl {
             this.tipo = null;
 
             // PRENDIAMO LO STAGE ATTUALE
-            Stage currentStage = (Stage) this.rootContainer.getScene().getWindow();
 
             // RISOLUZIONE TRAMITE PAGECONTROL: 
             // Inizializziamo PageControl passandogli lo stage in modo che possa fare il refresh completo dal DB
-            client.Altro.PageControl pc = new client.Altro.PageControl(currentStage);
-            this.clickHome(pc);
+            this.clickHome(windowContex);
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
     
-    public void clickHome(PageControl pc) {
-
-        pc.createHomePageBoundary(this.email);
-
-
+    public void clickHome(Object windowContex) {
+        this.createHomePageBoundary(this.email,windowContex);
+        
     }
-    public void setStage(Stage stage) {
-        this.rootContainer = (VBox) stage.getScene().getRoot();
-    }
+
+    
 
 
     public void apriDocumento(ContenutoEntity risorsa) {
@@ -192,21 +190,19 @@ public class HomePageControl {
   }
 
   public void mostraCaricamentoImmagine(CaricaFotoProfiloBound cfpb){ 
-    VBox caricamentoFoto = cfpb.visualizza();
-    rootContainer.getChildren().clear();
-    rootContainer.getChildren().add(caricamentoFoto);
+    this.hb.mostraPannelloCaricamentoFoto(cfpb);
   }
 
-  public void nascondiCaricamentoImmagine(){
+ 
+  
 
+  public void ricaricaPagina(Object context) {
+      this.createHomePageBoundary(this.email,context);
+      
   }
 
-  public void ricaricaPagina(PageControl pc) {
-      pc.createHomePageBoundary(this.email);
-  }
-
-  public void salvaNuovaFotoProfilo(){
-
+  public void salvaNuovaFotoProfilo(Object windowContext){
+    this.ricaricaPagina(windowContext );
 
   }
 
@@ -225,17 +221,13 @@ public class HomePageControl {
 
   }
 
-  public void salvaNuovoOrdinamento(){
+  public void salvaNuovoOrdinamento(List<ContenutoEntity> contenutiAggiornati){
     HashMap<Integer,Integer> mappaPosizioni = new HashMap<>();
-    FlowPane resourcesContainer = this.hb.getResourcesContainer();
-    int numberOfCards = resourcesContainer.getChildren().size();
-    List<ContenutoEntity> contenutiAggiornati = new ArrayList<>();
-
+    int numberOfCards = contenutiAggiornati.size();
+    
     for(int i=0; i<numberOfCards; i++){
-        VBox card = (VBox) resourcesContainer.getChildren().get(i);
-        ContenutoEntity risorsa = (ContenutoEntity) card.getUserData();
+        ContenutoEntity risorsa = contenutiAggiornati.get(i);
         mappaPosizioni.put(risorsa.getId(), risorsa.getPosizione());
-        contenutiAggiornati.add(risorsa);
     }
 
     try {
@@ -260,38 +252,37 @@ public class HomePageControl {
   }
 
 
-public void invertiOrdineRisorse(int d, VBox card) {
+public void invertiOrdineRisorse(int d, ContenutoEntity card) {
    // 1. Identifica l'indice di partenza fisso
-    int currentIndex = this.hb.getResourcesContainer().getChildren().indexOf(card);
+    int currentIndex = this.hb.getResourceIndex(card);
     if (currentIndex == -1) return; // Controllo di sicurezza se la card non viene trovata
-
-    ContenutoEntity risorsa = (ContenutoEntity) card.getUserData();
     int targetIndex = -1;
 
-    // 2. Determina l'indice di destinazione in base alla direzione
+    //Determina l'indice di destinazione in base alla direzione
     if (d == 1) { // Freccia Sinistra / Su
         if (currentIndex <= 0) return; // Giò è il primo elemento, ignora
         targetIndex = currentIndex - 1;
     } else { // Freccia Destra / Giù
-        if (currentIndex >= this.hb.getResourcesContainer().getChildren().size() - 1) return; // Già ultimo, ignora
+        if (currentIndex >= this.hb.getContenitoreCardSize() - 1) return; // Già ultimo, ignora
         targetIndex = currentIndex + 1;
     }
 
     // 3. Recupera la card partner con cui effettuare lo scambio
-    VBox partnerCard = this.hb.getCardByIndex(targetIndex);
-    if (partnerCard == null) return;
-    ContenutoEntity partnerRisorsa = (ContenutoEntity) partnerCard.getUserData();
-
-    // 4. Scambio dati logico sulle Entity (Puro BCE)
-    int posIniziale = risorsa.getPosizione();
-    risorsa.setPosizione(partnerRisorsa.getPosizione());
+    ContenutoEntity partnerRisorsa = this.hb.getCardByIndex(targetIndex);
+    if (partnerRisorsa == null) return;
+    
+    
+    //Scambio dati logico sulle Entity (Puro BCE)
+    int posIniziale = card.getPosizione();
+    card.setPosizione(partnerRisorsa.getPosizione());
     partnerRisorsa.setPosizione(posIniziale);
 
-    // 5. Richiesta alla Boundary di effettuare lo swap atomico sulla UI
+    //Richiesta alla Boundary di effettuare lo swap atomico sulla UI
     this.hb.scambiaCardNelContenitore(currentIndex, targetIndex);
-
-    // 6. Ricalcola lo stato visivo abilitato/disabilitato/visibile di tutte le frecce
+    
+    // Ricalcola lo stato visivo abilitato/disabilitato/visibile di tutte le frecce
     this.abilitaRiodinamentoContenuti();
+
 }
 
 
@@ -319,7 +310,49 @@ public void invertiOrdineRisorse(int d, VBox card) {
     
   }
 
+  public void visualizza(Object windowContext){
+        this.hb.visualizzaContesto(windowContext);
+    }
+
+     public List<ContenutoEntity> getUserResources(String email) throws SQLException {
+        return db.getResources(email);
+   
+   
+     }
+
+    public void createHomePageBoundary(String email,Object windowContext) {
+        try{
+            List<ContenutoEntity> userResources = this.getUserResources(email);
+            this.hb = new HomePageBoundary(email);
+            this.getUserInfo(email);
+            this.visualizza(windowContext);
+            if (userResources != null && !userResources.isEmpty()) { 
+            for (ContenutoEntity risorsa : userResources) {
+                hb.mostraRisorsa();
+                hb.caricaDatiRisorsa(risorsa);
+                hb.associaBottoneModifica();
+                hb.associaBottoneRimozione();
+            }
+        } else {
+            hb.backgroundDisplay("Nessuna risorsa è stata caricata");
+        }
+        }catch(SQLException e){
+            e.printStackTrace();   
+        }
+    }
 
 
+     public void getUserInfo(String email) {
+        try {
+            StudenteEntity studente = db.getUserInfo(email);
+            if (studente != null) {
+                hb.setUserInfo(studente);
+            } else {
+                System.out.println("Nessun utente trovato con l'email: " + email);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

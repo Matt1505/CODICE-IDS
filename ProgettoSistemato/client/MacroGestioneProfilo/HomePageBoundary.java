@@ -5,11 +5,16 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Circle;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color; 
+import javafx.scene.Scene;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
+
+import javafx.scene.Scene;
 import client.GeneralClasses.Entities.ContenutoEntity;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
@@ -18,6 +23,8 @@ import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 import client.GeneralClasses.Entities.StudenteEntity;
+import client.MacroGestioneCondivisioni.SendFileControl;
+import client.MacroGestioneProfilo.CaricamentoFileBound;
 
 public class HomePageBoundary {
     private String email;
@@ -31,11 +38,13 @@ public class HomePageBoundary {
     private Button btnModificaProfilo;
     private Button btnSalva;
     private TextField txtCercaUtenti;    
+    private SendFileControl sendFileControl;
       
 
     public HomePageBoundary(String email) {
         this.email = email;
         this.hc = new HomePageControl(email, this);
+        this.sendFileControl = new SendFileControl();
         this.rootContainer = new VBox(0); 
         this.rootContainer.setStyle("-fx-background-color: #F0F4F8;"); // Sfondo app
         
@@ -81,7 +90,7 @@ public class HomePageBoundary {
         btnModificaInTestata.setStyle("-fx-background-color: #F0F4F8; -fx-text-fill: #091B33; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 15; -fx-padding: 5 8; -fx-font-weight: bold;");
         btnModificaInTestata.setOnMouseEntered(e -> btnModificaInTestata.setStyle("-fx-background-color: #091B33; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 15; -fx-padding: 5 8; -fx-font-weight: bold;"));
         btnModificaInTestata.setOnMouseExited(e -> btnModificaInTestata.setStyle("-fx-background-color: #F0F4F8; -fx-text-fill: #091B33; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 15; -fx-padding: 5 8; -fx-font-weight: bold;"));
-        btnModificaInTestata.setOnAction(event -> clickModificaFotoProfilo());
+        btnModificaInTestata.setOnAction(event -> modificaFoto());
 
         btnSalva= new Button("SALVA");
         btnSalva.setStyle("-fx-background-color: #F0F4F8; -fx-text-fill: #091B33; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 15; -fx-padding: 5 8; -fx-font-weight: bold;");
@@ -116,7 +125,7 @@ public class HomePageBoundary {
         this.btnCondividiContenuti.setStyle("-fx-background-color: #12305C; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13px;");
         this.btnCondividiContenuti.setOnMouseEntered(e -> this.btnCondividiContenuti.setStyle("-fx-background-color: #0A1C3A; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13px;"));
         this.btnCondividiContenuti.setOnMouseExited(e -> this.btnCondividiContenuti.setStyle("-fx-background-color: #12305C; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13px;"));
-        this.btnCondividiContenuti.setOnAction(event -> clickCondividiContenuti());
+        this.btnCondividiContenuti.setOnAction(event -> condividiContenutiOn());
 
         // Bottone RIORDINA CONTENUTI
         this.btnRiordinaContenuti = new Button("RIORDINA CONTENUTI");
@@ -129,9 +138,7 @@ public class HomePageBoundary {
         this.btnGestioneProfilo.setStyle(navBtnStyle);
         this.btnGestioneProfilo.setOnAction(event -> clickGestioneProfilo());
         
-        this.btnModificaProfilo = new Button("Impostazioni");
-        this.btnModificaProfilo.setStyle(navBtnStyle);
-        this.btnModificaProfilo.setOnAction(event -> clickModificaFotoProfilo());
+    
         
         // Barra di ricerca
         this.txtCercaUtenti = new TextField();
@@ -139,7 +146,9 @@ public class HomePageBoundary {
         this.txtCercaUtenti.setPrefWidth(220);
         this.txtCercaUtenti.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #C4D1DF; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 9; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;");
         this.txtCercaUtenti.setOnAction(event -> cercaUtenti(txtCercaUtenti.getText()));
-
+        this.btnModificaProfilo = new Button("Modifica Profilo");
+        this.btnModificaProfilo.setStyle(navBtnStyle);
+        this.btnModificaProfilo.setOnAction(event -> modificaFoto());
         topBar.getChildren().addAll(this.btnCaricaFile, this.btnCondividiContenuti, this.btnRiordinaContenuti, this.btnGestioneProfilo, this.btnModificaProfilo,this.btnSalva, this.txtCercaUtenti);
         header.getChildren().addAll(topHeaderRow, topBar);
 
@@ -158,7 +167,7 @@ public class HomePageBoundary {
         btnModificaBio.setStyle("-fx-background-color: transparent; -fx-border-color: #12305C; -fx-border-radius: 4; -fx-text-fill: #12305C; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 10;");
         btnModificaBio.setOnMouseEntered(e -> btnModificaBio.setStyle("-fx-background-color: #12305C; -fx-border-color: #12305C; -fx-border-radius: 4; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 10;"));
         btnModificaBio.setOnMouseExited(e -> btnModificaBio.setStyle("-fx-background-color: transparent; -fx-border-color: #12305C; -fx-border-radius: 4; -fx-text-fill: #12305C; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 10;"));
-        btnModificaBio.setOnAction(event -> clickModificaFotoProfilo()); // Agganciato coerentemente all'azione di modifica esistente
+        btnModificaBio.setOnAction(event -> modificaFoto()); // Agganciato coerentemente all'azione di modifica esistente
 
         bioTitleBar.getChildren().addAll(lblBioTitle, btnModificaBio);
         
@@ -191,33 +200,77 @@ public class HomePageBoundary {
         this.rootContainer.getChildren().addAll(header, scrollPane);
     }
 
-    public void visualizza() { this.rootContainer.setVisible(true); }
-    public VBox getRootContainer() { return this.rootContainer; }
+    public void visualizza() { 
+        this.rootContainer.setVisible(true);
+
+
+     }
+
+
     public void attivaCaricamentoFile() {
-        Stage stageAttuale = (Stage) rootContainer.getScene().getWindow();
-        this.hc.setStage(stageAttuale);
         if (this.hc != null) { this.hc.visualizza(); }
+    }
+
+    public void mostraPannelloCaricamentoFile(CaricamentoFileBound cFileBound){
+        Stage currenteStage = (Stage) this.rootContainer.getScene().getWindow();
+        VBox layout = cFileBound.visualizza();
+        Scene reindirizzamentoScene = new Scene(layout, 400, 300);
+        currenteStage.setScene(reindirizzamentoScene);
+
+    }
+
+
+
+    public void visualizzaContesto(Object windowContext){
+        if(windowContext instanceof Stage){
+            Stage stage= (Stage) windowContext;
+            javafx.application.Platform.runLater(()->{
+                Scene homeScene= new Scene(this.rootContainer,900,700);
+                stage.setScene(homeScene);
+                stage.setTitle("Piattaforma AFAM -HOME");
+                stage.show();
+            });
+
+
+
+        }
+
+
+
+    }
+
+
+
+    public void mostraPannelloCaricamentoFoto(CaricaFotoProfiloBound cfpb){
+        Stage currenteStage = (Stage) this.rootContainer.getScene().getWindow();
+        VBox layout = cfpb.visualizza();
+        Scene reindirizzamentoScene = new Scene(layout, 400, 300);
+        currenteStage.setScene(reindirizzamentoScene);
+
     }
 
     public int getNumberOfCards(){
         return this.resourcesContainer.getChildren().size();
     }
+
     public void attivaRiordinamentoContenuti() {
 
         this.hc.abilitaRiodinamentoContenuti();
 
     }
 
-    public void clickCondividiContenuti() {}
+    public void condividiContenutiOn() {
+
+        sendFileControl.abilitaSelezione();
+
+
+    }
     public void cercaUtenti(String query) {
         if(query != null && !query.trim().isEmpty()) { }
     }
     public void clickGestioneProfilo() {}
-    public void clickModificaFotoProfilo() {
+    public void modificaFoto() {
 
-    // Passa lo stage attuale al controller per permettergli di cambiare schermata o aprire un popup
-    Stage stageAttuale = (Stage) rootContainer.getScene().getWindow();
-    this.hc.setStage(stageAttuale); 
     
     // Delega l'azione al controller
     this.hc.createCaricaFotoProfiloBound();
@@ -342,14 +395,14 @@ public class HomePageBoundary {
         btnFrecciaSinistra.setDisable(true);
         btnFrecciaSinistra.setVisible(false); // <<-- AGGIUNGI QUESTO: Nasconde la freccia all'avvio
         btnFrecciaSinistra.setManaged(false); // <<-- AGGIUNGI QUESTO: Rimuove l'ingombro visivo nel layout
-        btnFrecciaSinistra.setOnAction(e -> this.hc.invertiOrdineRisorse(1, card));
+        btnFrecciaSinistra.setOnAction(e -> this.hc.invertiOrdineRisorse(1,(ContenutoEntity) card.getUserData()));
 
         Button btnFrecciaDestra = new Button("→");
         btnFrecciaDestra.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #12305C; -fx-text-fill: #12305C; -fx-font-weight: bold; -fx-cursor: hand; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 4 12;");
         btnFrecciaDestra.setDisable(true);
         btnFrecciaDestra.setVisible(false); // <<-- AGGIUNGI QUESTO: Nasconde la freccia all'avvio
         btnFrecciaDestra.setManaged(false); // <<-- AGGIUNGI QUESTO: Rimuove l'ingombro visivo nel layout
-        btnFrecciaDestra.setOnAction(e -> this.hc.invertiOrdineRisorse(2, card));
+        btnFrecciaDestra.setOnAction(e -> this.hc.invertiOrdineRisorse(2, (ContenutoEntity) card.getUserData()));
         // Inseriamo le frecce come primi elementi dell'actionBox
         actionBox.getChildren().addAll(btnFrecciaSinistra, btnFrecciaDestra);
 
@@ -412,15 +465,17 @@ public class HomePageBoundary {
         btnFrecciaDestra.setDisable(!abilitaDestra);
     }
 
-    public VBox getCardByIndex(int index) {
+    public ContenutoEntity getCardByIndex(int index) {
         if (index < 0 || index >= this.resourcesContainer.getChildren().size()) return null;
-        return (VBox) this.resourcesContainer.getChildren().get(index);
+        VBox cardBox = (VBox) this.resourcesContainer.getChildren().get(index);
+        return (ContenutoEntity) cardBox.getUserData();
     }
 
     public FlowPane getResourcesContainer() {
         return this.resourcesContainer;
     }
-  public void scambiaCardNelContenitore(int indiceA, int indiceB) {
+
+    public void scambiaCardNelContenitore(int indiceA, int indiceB) {
     if (indiceA < 0 || indiceB < 0 || 
         indiceA >= this.resourcesContainer.getChildren().size() || 
         indiceB >= this.resourcesContainer.getChildren().size()) {
@@ -448,9 +503,35 @@ public class HomePageBoundary {
 }
 
 public void caricaNuovoOrdinamento() {
-    this.hc.salvaNuovoOrdinamento();
+    ArrayList<ContenutoEntity> nuovoOrdinamento = new ArrayList<>();
+    for (javafx.scene.Node node : this.resourcesContainer.getChildren()) {
+        if (node instanceof VBox) {
+            VBox card = (VBox) node;
+            ContenutoEntity contenuto = (ContenutoEntity) card.getUserData();
+            if (contenuto != null) {
+                nuovoOrdinamento.add(contenuto);
+            }
+        }
+    }
+    this.hc.salvaNuovoOrdinamento(nuovoOrdinamento);
 
 }   
+
+
+public int getResourceIndex(ContenutoEntity risorsa) {
+    for (int i = 0; i < this.resourcesContainer.getChildren().size(); i++) {
+        VBox card = (VBox) this.resourcesContainer.getChildren().get(i);
+        ContenutoEntity contenuto = (ContenutoEntity) card.getUserData();
+        if (contenuto != null && contenuto.equals(risorsa)) {
+            return i;
+        }
+    }
+    return -1; // Risorsa non trovata
+}
+
+public int getContenitoreCardSize(){
+    return this.getResourcesContainer().getChildren().size();
+}
 
 public void EnableSaveButton(){
     this.btnSalva.setDisable(false);

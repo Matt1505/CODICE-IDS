@@ -99,17 +99,17 @@ public class CaricamentoFileBound {
         if(fileSelezionato != null) {
             lblStatusFile.setText("File pronto: " + fileSelezionato.getName());
             // Passa l'intero file al controller, che si occuperà della memorizzazione temporanea
-            controller.mostraFormDatiContenuto(fileSelezionato);
+            controller.trasformaInBlob(fileSelezionato);
+            
         }
     }
-
     // Risolto l'errore 3: Il metodo si limita a prelevare le stringhe e inviarle alla Control conformemente al tipo richiesto (String, String)
-    private void confermaCaricamentoContenuto() {
+    public void confermaCaricamentoContenuto() {
         String titolo = txtTitolo.getText();
         String descrizione = txtDescrizione.getText();
-        
+
         // Passa solo i campi di testo richiesti, rimuovendo il parametro superfluo "fileBlob"
-        controller.salvaContenuto(titolo, descrizione);
+        controller.salvaContenuto(titolo, descrizione,txtTitolo.getScene().getWindow());
     }
 
 private void goHome() {
@@ -117,9 +117,8 @@ private void goHome() {
     Stage stageCorrente = (Stage) txtTitolo.getScene().getWindow();
     
     // Passiamo lo Stage al costruttore corretto di PageControl
-    PageControl pc = new PageControl(stageCorrente);
     
     //  Creiamo la Home (che si occuperà anche di fare il visualizza)
-    pc.createHomePageBoundary(this.email);
+    controller.createHomePageBoundary(email, stageCorrente);
 }
 }
