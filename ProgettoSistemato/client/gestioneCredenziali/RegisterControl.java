@@ -1,16 +1,7 @@
 package client.gestioneCredenziali;
 
-import javafx.application.Platform;
-import javafx.stage.Stage;
-import javafx.stage.Modality;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.Font;
-import javafx.scene.paint.Color;
-import javafx.geometry.Pos;
-import javafx.geometry.Insets;
+
+
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -34,7 +25,7 @@ import client.GeneralClasses.Entities.StudenteEntity;
 
 public class RegisterControl {
 
-    private Stage currentStage;
+  
     private client.GeneralClasses.Entities.StudenteEntity user;
     private String repeatPw;
     private DBMSBoundary dbBound = new DBMSBoundary();
@@ -42,22 +33,17 @@ public class RegisterControl {
     private int wrongAttempsCounter = 0;
     private AlertBoundary ab = new AlertBoundary();
 
-    public RegisterControl(Stage stage) {
-        this.currentStage = stage;
+    public RegisterControl() {
+        
     }
     
-    public void createRegisterBoundary() {
-        Platform.runLater(() -> {
-            RegisterBound registerBound = new RegisterBound();
-            Scene registerScene = registerBound.getScene(this.currentStage);
-            this.currentStage.setTitle("Registrazione (Client)");
-            this.currentStage.setScene(registerScene);
-            this.currentStage.show();
-        });
+    public void createRegisterBoundary(Object windowContext) {
+        RegisterBound rb = new RegisterBound();
+        rb.visualizza(windowContext);
     }
   
     public void checkEmptyForm(String nome, String cognome, String email, 
-                               String cf, String matricola, String pw, String repeatPw) {
+                               String cf, String matricola, String pw, String repeatPw,Object windowContext) {
         if (nome.equals("")) {
             this.ab.alert("Tutti i campi devono essere riempiti");
             return;
@@ -85,7 +71,7 @@ public class RegisterControl {
 
         if (checkRes == 1) {
             this.user = new StudenteEntity(matricola, nome, cognome, email, cf, pw);
-            this.sendRequestUniqueData(email, cf);
+            this.sendRequestUniqueData(email, cf,windowContext);
         } else {
             if (checkRes == 0) {
                 this.ab.alert("campi password e ripeti password diversi!");
@@ -111,7 +97,7 @@ public class RegisterControl {
         }
     }
 
-    public void sendRequestUniqueData(String email, String cf) {
+    public void sendRequestUniqueData(String email, String cf,Object windowContext) {
         try {
             boolean isdata = dbBound.requestUniqueData(email, cf);
                                    
@@ -119,7 +105,7 @@ public class RegisterControl {
                 AlertBoundary errorBound = new AlertBoundary();
                 errorBound.alert("Validazione fallita: Email o Codice Fiscale già registrati!");
             } else {
-                this.createOTP();
+                this.createOTP(windowContext);
             }
         } catch (Exception e) {
             AlertBoundary errorBound = new AlertBoundary();
@@ -128,20 +114,19 @@ public class RegisterControl {
         }
     }
 
-    private void createOTP() {
+    private void createOTP(Object windowContext) {
         System.out.println("Generazione codice OTP in corso...");
         Random random = new Random();
         int number = 100000 + random.nextInt(900000);    
+        OTPBound otpb= new OTPBound(this, user.getEmail());
+        otpb.visualizza(windowContext);
         this.saveOTP(number);
     }
 
     private void saveOTP(int OTP) {
         try {
             dbBound.addOtp(this.user.getEmail(), String.valueOf(OTP));
-            Platform.runLater(() -> {
-                this.currentStage.setTitle("Verifica Sicurezza (OTP)");
-                this.currentStage.setScene(OTPBound.createOTPScene(this.currentStage, this, this.user.getEmail()));
-            });
+           
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -152,16 +137,14 @@ public class RegisterControl {
         try{
             dbBound.deleteOTP(this.user.getEmail());
             this.ab.alert("otp verificato con successo!");
-            PageControl pc = new PageControl();
-            pc.createHomePageBoundary(user.getEmail());
         }catch(SQLException e){
             e.printStackTrace();
         }
     }
 
-    public void requestGeneratedOTP(String email, String otp) {
+    public void requestGeneratedOTP(String email, String otp,Object windowContext) {
         try {
-             this.verifyOTPs(dbBound.checkOTPExistance(this.user.getEmail(), otp));
+             this.verifyOTPs(dbBound.checkOTPExistance(this.user.getEmail(), otp),windowContext);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -175,7 +158,7 @@ public class RegisterControl {
         this.wrongAttempsCounter = 0;
     }
 
-    public void verifyOTPs(OTPEntity otpDalDb) {
+    public void verifyOTPs(OTPEntity otpDalDb,Object windowContext) {
             if (otpDalDb != null) {
                 String savedOTP = otpDalDb.getCode();
                 java.sql.Timestamp createdAt = otpDalDb.getTs();            
@@ -184,31 +167,26 @@ public class RegisterControl {
                 long diffMinutes = (currentTime - otpTime) / (60 * 1000);
                             
                 if (diffMinutes <= 15) {
-                     this.hashPassword();
+                     this.hashPassword(windowContext);
                 } else {
                     System.out.println("Validazione fallita: Il codice OTP è scaduto.");
-                    this.createOTP();
+                    this.createOTP(windowContext);
                 }
                 this.removeOTP(this.user.getEmail());
             } else {
                 this.ab.alert("OTP errato, reinseriscilo");
-                
-                Platform.runLater(() -> {
-                    this.currentStage.setTitle("Verifica Sicurezza (OTP)");
-                    this.currentStage.setScene(OTPBound.createOTPScene(this.currentStage, this, this.user.getEmail()));
-                });
                 
                 this.increaseWrongAttempts();
                 if (this.wrongAttempsCounter % 3 == 0) {
                     this.setWrongAttempsToZero();
                     this.ab.alert("ERRORE, raggiunti 3 tentativi errati, nuovo codice generato");
                     this.removeOTP(this.user.getEmail()); 
-                    this.createOTP();
+                    this.createOTP(windowContext);
                 }
             }
     }
 
-    private void hashPassword() {
+    private void hashPassword(Object windowContext) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");
             byte[] messageDigest = md.digest(this.user.getPw().getBytes());
@@ -221,17 +199,17 @@ public class RegisterControl {
             }
 
             this.user.setPw(hashtext);
-            this.sendCredentials();
+            this.sendCredentials(windowContext);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void sendCredentials() {
+    private void sendCredentials(Object windowContext) {
         try {
             this.dbBound.transmitCredentials(this.user.getMatricola(), this.user.getNome(), this.user.getCognome(), this.user.getEmail(), this.user.getCf(), this.user.getPw());
-            LoginBound lb = new LoginBound(this.currentStage);
-            lb.visualizza();
+            LoginBound lb = new LoginBound();
+            lb.visualizza(windowContext);
         } catch (SQLException e) {
             e.printStackTrace();
         }

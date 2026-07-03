@@ -10,35 +10,32 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.application.Platform;
 
 public class RegisterBound extends Application {
 
     private GridPane grid;
     private RegisterControl controller;
     private LoginControl lc;
+    private Stage stage;
+
+
+    public RegisterBound(){
+        this.controller= new RegisterControl();
+        this.lc= new LoginControl();
+    }
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Piattaforma AFAM - Registrazione Artista"); // Titolo aggiornato
-        
-        this.controller = new RegisterControl(primaryStage);
-        
-        grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(15); grid.setVgap(15);
-        grid.setPadding(new Insets(40, 40, 40, 40));
-
-        mostraFormRegistrazione();
-
-        // Aumentata leggermente l'altezza (da 550 a 600) solo per far entrare il nuovo campo senza sovrapposizioni
-        Scene scene = new Scene(grid, 500, 600); 
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        this.stage=primaryStage;
+        this.visualizza(primaryStage);
     }
+        
+    
 
     public Scene getScene(Stage stage) {
-        this.controller = new RegisterControl(stage);
-        this.lc = new LoginControl(stage);
+        this.controller = new RegisterControl();
+        this.lc = new LoginControl();
         grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(15); grid.setVgap(15);
@@ -47,6 +44,36 @@ public class RegisterBound extends Application {
         mostraFormRegistrazione();
 
         return new Scene(grid, 500, 600);
+    }
+
+    public void visualizza(Object primaryStage){
+        if(primaryStage instanceof Stage){
+            this.stage= (Stage) primaryStage;
+            Platform.runLater(()->{
+                stage.setTitle("Piattaforma AFAM - Registrazione Artista"); // Titolo aggiornato
+                
+                this.controller = new RegisterControl();
+                
+                grid = new GridPane();
+                grid.setAlignment(Pos.CENTER);
+                grid.setHgap(15); grid.setVgap(15);
+                grid.setPadding(new Insets(40, 40, 40, 40));
+
+                mostraFormRegistrazione();
+
+                // Aumentata leggermente l'altezza (da 550 a 600) solo per far entrare il nuovo campo senza sovrapposizioni
+                Scene scene = new Scene(grid, 500, 600); 
+                stage.setScene(scene);
+                stage.show();
+
+
+
+
+            });
+        }
+
+
+
     }
 
     private void mostraFormRegistrazione() {
@@ -101,7 +128,7 @@ public class RegisterBound extends Application {
         
         btnLogin.setOnMouseEntered(e -> btnLogin.setStyle("-fx-background-color: transparent; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px; -fx-cursor: hand; -fx-padding: 10 0; -fx-underline: true;"));
         btnLogin.setOnMouseExited(e -> btnLogin.setStyle("-fx-background-color: transparent; -fx-text-fill: #16325B; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px; -fx-cursor: hand; -fx-padding: 10 0;"));
-        btnLogin.setOnAction(e -> this.lc.createLoginBoundary());
+        btnLogin.setOnAction(e -> this.lc.createLoginBoundary(stage));
         HBox hbBtn = new HBox(15); 
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
         
@@ -128,7 +155,7 @@ public class RegisterBound extends Application {
     // Firma modificata includendo la stringa matricola passata al control
     private void sendCredentials(String nome, String cognome, String email, 
                                  String cf, String matricola, String pw, String repeatPw) {
-        controller.checkEmptyForm(nome, cognome, email, cf, matricola, pw, repeatPw);
+        controller.checkEmptyForm(nome, cognome, email, cf, matricola, pw, repeatPw,this.stage);
     }
 
     public static void main(String[] args) {
