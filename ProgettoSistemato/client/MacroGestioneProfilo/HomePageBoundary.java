@@ -8,7 +8,8 @@ import javafx.scene.paint.Color;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
-
+import java.util.ArrayList;
+import java.util.List;
 
 import client.GeneralClasses.Entities.ContenutoEntity;
 import javafx.geometry.Pos;
@@ -18,6 +19,7 @@ import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 import client.GeneralClasses.Entities.StudenteEntity;
+import client.MacroGestioneCondivisioni.SendFileControl;
 
 public class HomePageBoundary {
     private String email;
@@ -31,11 +33,15 @@ public class HomePageBoundary {
     private Button btnModificaProfilo;
     private Button btnSalva;
     private TextField txtCercaUtenti;    
+    private VBox risultatiRicercaUtentiContainer;
+    private SendFileControl sendFileControl;
+    private PublicContentBound publicContentBound;
       
 
     public HomePageBoundary(String email) {
         this.email = email;
         this.hc = new HomePageControl(email, this);
+        this.sendFileControl = new SendFileControl();
         this.rootContainer = new VBox(0); 
         this.rootContainer.setStyle("-fx-background-color: #F0F4F8;"); // Sfondo app
         
@@ -116,7 +122,7 @@ public class HomePageBoundary {
         this.btnCondividiContenuti.setStyle("-fx-background-color: #12305C; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13px;");
         this.btnCondividiContenuti.setOnMouseEntered(e -> this.btnCondividiContenuti.setStyle("-fx-background-color: #0A1C3A; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13px;"));
         this.btnCondividiContenuti.setOnMouseExited(e -> this.btnCondividiContenuti.setStyle("-fx-background-color: #12305C; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13px;"));
-        this.btnCondividiContenuti.setOnAction(event -> clickCondividiContenuti());
+        this.btnCondividiContenuti.setOnAction(event -> condividiContenutiOn());
 
         // Bottone RIORDINA CONTENUTI
         this.btnRiordinaContenuti = new Button("RIORDINA CONTENUTI");
@@ -138,7 +144,18 @@ public class HomePageBoundary {
         this.txtCercaUtenti.setPromptText(" Cerca altri utenti...");
         this.txtCercaUtenti.setPrefWidth(220);
         this.txtCercaUtenti.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #C4D1DF; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 9; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;");
-        this.txtCercaUtenti.setOnAction(event -> cercaUtenti(txtCercaUtenti.getText()));
+        
+        //Risultati ricerca utenti
+        this.risultatiRicercaUtentiContainer = new VBox(8);
+        this.risultatiRicercaUtentiContainer.setPadding(new Insets(10, 30, 10, 30));
+        this.risultatiRicercaUtentiContainer.setStyle("-fx-background-color: transparent;");
+
+        this.txtCercaUtenti.setOnAction(event -> ricercaUtente(txtCercaUtenti.getText()));
+        this.txtCercaUtenti.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null || newValue.trim().isEmpty()) {
+             this.pulisciRisultatiRicercaUtenti();
+         }
+        });
 
         topBar.getChildren().addAll(this.btnCaricaFile, this.btnCondividiContenuti, this.btnRiordinaContenuti, this.btnGestioneProfilo, this.btnModificaProfilo,this.btnSalva, this.txtCercaUtenti);
         header.getChildren().addAll(topHeaderRow, topBar);
@@ -179,7 +196,7 @@ public class HomePageBoundary {
         // VBox interno allo ScrollPane che impila la sezione Descrizione sopra la Galleria di Contenuti
         VBox scrollContentWrapper = new VBox(0);
         scrollContentWrapper.setStyle("-fx-background-color: transparent;");
-        scrollContentWrapper.getChildren().addAll(bioSection, this.resourcesContainer);
+        scrollContentWrapper.getChildren().addAll(bioSection, this.risultatiRicercaUtentiContainer, this.resourcesContainer);
         
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(scrollContentWrapper);
@@ -208,10 +225,16 @@ public class HomePageBoundary {
 
     }
 
-    public void clickCondividiContenuti() {}
-    public void cercaUtenti(String query) {
-        if(query != null && !query.trim().isEmpty()) { }
+    public void condividiContenutiOn() {
+
+        sendFileControl.abilitaSelezione();
+
+
     }
+    public void ricercaUtente(String query) {
+    this.hc.cercaUtente(query);
+    }
+
     public void clickGestioneProfilo() {}
     public void clickModificaFotoProfilo() {
 
@@ -342,14 +365,14 @@ public class HomePageBoundary {
         btnFrecciaSinistra.setDisable(true);
         btnFrecciaSinistra.setVisible(false); // <<-- AGGIUNGI QUESTO: Nasconde la freccia all'avvio
         btnFrecciaSinistra.setManaged(false); // <<-- AGGIUNGI QUESTO: Rimuove l'ingombro visivo nel layout
-        btnFrecciaSinistra.setOnAction(e -> this.hc.invertiOrdineRisorse(1, card));
+        btnFrecciaSinistra.setOnAction(e -> this.hc.invertiOrdineRisorse(1,(ContenutoEntity) card.getUserData()));
 
         Button btnFrecciaDestra = new Button("→");
         btnFrecciaDestra.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #12305C; -fx-text-fill: #12305C; -fx-font-weight: bold; -fx-cursor: hand; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 4 12;");
         btnFrecciaDestra.setDisable(true);
         btnFrecciaDestra.setVisible(false); // <<-- AGGIUNGI QUESTO: Nasconde la freccia all'avvio
         btnFrecciaDestra.setManaged(false); // <<-- AGGIUNGI QUESTO: Rimuove l'ingombro visivo nel layout
-        btnFrecciaDestra.setOnAction(e -> this.hc.invertiOrdineRisorse(2, card));
+        btnFrecciaDestra.setOnAction(e -> this.hc.invertiOrdineRisorse(2, (ContenutoEntity) card.getUserData()));
         // Inseriamo le frecce come primi elementi dell'actionBox
         actionBox.getChildren().addAll(btnFrecciaSinistra, btnFrecciaDestra);
 
@@ -412,15 +435,17 @@ public class HomePageBoundary {
         btnFrecciaDestra.setDisable(!abilitaDestra);
     }
 
-    public VBox getCardByIndex(int index) {
+    public ContenutoEntity getCardByIndex(int index) {
         if (index < 0 || index >= this.resourcesContainer.getChildren().size()) return null;
-        return (VBox) this.resourcesContainer.getChildren().get(index);
+        VBox cardBox = (VBox) this.resourcesContainer.getChildren().get(index);
+        return (ContenutoEntity) cardBox.getUserData();
     }
 
     public FlowPane getResourcesContainer() {
         return this.resourcesContainer;
     }
-  public void scambiaCardNelContenitore(int indiceA, int indiceB) {
+
+    public void scambiaCardNelContenitore(int indiceA, int indiceB) {
     if (indiceA < 0 || indiceB < 0 || 
         indiceA >= this.resourcesContainer.getChildren().size() || 
         indiceB >= this.resourcesContainer.getChildren().size()) {
@@ -448,9 +473,31 @@ public class HomePageBoundary {
 }
 
 public void caricaNuovoOrdinamento() {
-    this.hc.salvaNuovoOrdinamento();
+    ArrayList<ContenutoEntity> nuovoOrdinamento = new ArrayList<>();
+    for (javafx.scene.Node node : this.resourcesContainer.getChildren()) {
+        if (node instanceof VBox) {
+            VBox card = (VBox) node;
+            ContenutoEntity contenuto = (ContenutoEntity) card.getUserData();
+            if (contenuto != null) {
+                nuovoOrdinamento.add(contenuto);
+            }
+        }
+    }
+    this.hc.salvaNuovoOrdinamento(nuovoOrdinamento);
 
 }   
+
+
+public int getResourceIndex(ContenutoEntity risorsa) {
+    for (int i = 0; i < this.resourcesContainer.getChildren().size(); i++) {
+        VBox card = (VBox) this.resourcesContainer.getChildren().get(i);
+        ContenutoEntity contenuto = (ContenutoEntity) card.getUserData();
+        if (contenuto != null && contenuto.equals(risorsa)) {
+            return i;
+        }
+    }
+    return -1; // Risorsa non trovata
+}
 
 public void EnableSaveButton(){
     this.btnSalva.setDisable(false);
@@ -478,5 +525,85 @@ public void nascondiFrecceCardSpecifici(int i){
     btnFrecciaDestra.setVisible(false);
     btnFrecciaDestra.setManaged(false);
 }
+public void pulisciRisultatiRicercaUtenti() {
+        this.risultatiRicercaUtentiContainer.getChildren().clear();
+    }
+    
+    public void mostraListaStudenti(List<StudenteEntity> listaStudenti) {
+        this.risultatiRicercaUtentiContainer.getChildren().clear();
 
+        Label titolo = new Label("Risultati ricerca utenti");
+        titolo.setStyle("-fx-font-family: 'Georgia'; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #091B33;");
+        this.risultatiRicercaUtentiContainer.getChildren().add(titolo);
+
+        if (listaStudenti == null || listaStudenti.isEmpty()) {
+            Label nessunRisultato = new Label("Nessun utente trovato.");
+            nessunRisultato.setStyle("-fx-font-family: 'Segoe UI'; -fx-font-size: 13px; -fx-text-fill: #8FA9C7;");
+            this.risultatiRicercaUtentiContainer.getChildren().add(nessunRisultato);
+            return;
+        }
+
+        for (StudenteEntity utente : listaStudenti) {
+            HBox cardUtente = new HBox(15);
+            cardUtente.setAlignment(Pos.CENTER_LEFT);
+            cardUtente.setPadding(new Insets(10));
+            cardUtente.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #E8EFF5; -fx-border-radius: 8;");
+
+            ImageView imgProfilo = new ImageView();
+            imgProfilo.setFitWidth(40);
+            imgProfilo.setFitHeight(40);
+            imgProfilo.setPreserveRatio(true);
+
+            if (utente.getFotoProfilo() != null && utente.getFotoProfilo().length > 0) {
+                imgProfilo.setImage(new Image(new ByteArrayInputStream(utente.getFotoProfilo())));
+            } else {
+                try {
+                    imgProfilo.setImage(new Image(getClass().getResourceAsStream("/Assets/defaultProfilePicture.jpeg")));
+                } catch (Exception e) {
+                    // Ignora se manca immagine default
+                }
+            }
+
+            Circle clip = new Circle(20, 20, 20);
+            imgProfilo.setClip(clip);
+
+            VBox infoUtente = new VBox(3);
+
+            Label nomeCognome = new Label(utente.getNome() + " " + utente.getCognome());
+            nomeCognome.setStyle("-fx-font-family: 'Segoe UI'; -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #091B33;");
+
+            Label emailLabel = new Label(utente.getEmail());
+            emailLabel.setStyle("-fx-font-family: 'Segoe UI'; -fx-font-size: 12px; -fx-text-fill: #556E8A;");
+
+            infoUtente.getChildren().addAll(nomeCognome, emailLabel);
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            Button btnVisualizza = new Button("Visualizza profilo");
+            btnVisualizza.setStyle("-fx-background-color: #12305C; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 7 12; -fx-background-radius: 5; -fx-cursor: hand;");
+
+            btnVisualizza.setOnAction(e -> this.hc.visualizzaStudente(utente));
+
+            cardUtente.getChildren().addAll(imgProfilo, infoUtente, spacer, btnVisualizza);
+            this.risultatiRicercaUtentiContainer.getChildren().add(cardUtente);
+        }
+    }
+
+    public void mostraPublicContentBound(PublicContentBound publicContentBound) {
+        this.publicContentBound = publicContentBound;
+
+        this.rootContainer.getChildren().clear();
+        this.rootContainer.getChildren().add(this.publicContentBound.visualizza());
+    }
+    public void mostraListaContenutiPubblici(List<ContenutoEntity> contenuti) {
+        if (this.publicContentBound != null) {
+            this.publicContentBound.mostraListaContenuti(contenuti);
+        }
+    }
+    public void caricaContenutoPubblico(ContenutoEntity contenuto) {
+        if (this.publicContentBound != null && contenuto != null) {
+            this.publicContentBound.caricaContenuto(contenuto);
+        }
+    }
 }

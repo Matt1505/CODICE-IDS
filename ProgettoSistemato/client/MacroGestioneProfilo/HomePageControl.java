@@ -13,9 +13,14 @@ import Server.DBMSBoundary;
 import client.Altro.PageControl;
 import client.GeneralClasses.AlertBoundary;
 import client.GeneralClasses.Entities.ContenutoEntity;
+import client.GeneralClasses.Entities.StudenteEntity;
+
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.layout.FlowPane;
+
+
+
 
 import java.util.HashMap;
 
@@ -28,6 +33,7 @@ public class HomePageControl {
     private AlertBoundary ab;
     private String tipo;
     private VBox rootContainer;
+    private PublicContentBound publicContentBound;
 
     public HomePageControl(String e, HomePageBoundary boundary) {
         this.email = e;
@@ -225,17 +231,13 @@ public class HomePageControl {
 
   }
 
-  public void salvaNuovoOrdinamento(){
+  public void salvaNuovoOrdinamento(List<ContenutoEntity> contenutiAggiornati){
     HashMap<Integer,Integer> mappaPosizioni = new HashMap<>();
-    FlowPane resourcesContainer = this.hb.getResourcesContainer();
-    int numberOfCards = resourcesContainer.getChildren().size();
-    List<ContenutoEntity> contenutiAggiornati = new ArrayList<>();
-
+    int numberOfCards = contenutiAggiornati.size();
+    
     for(int i=0; i<numberOfCards; i++){
-        VBox card = (VBox) resourcesContainer.getChildren().get(i);
-        ContenutoEntity risorsa = (ContenutoEntity) card.getUserData();
+        ContenutoEntity risorsa = contenutiAggiornati.get(i);
         mappaPosizioni.put(risorsa.getId(), risorsa.getPosizione());
-        contenutiAggiornati.add(risorsa);
     }
 
     try {
@@ -260,15 +262,13 @@ public class HomePageControl {
   }
 
 
-public void invertiOrdineRisorse(int d, VBox card) {
+public void invertiOrdineRisorse(int d, ContenutoEntity card) {
    // 1. Identifica l'indice di partenza fisso
-    int currentIndex = this.hb.getResourcesContainer().getChildren().indexOf(card);
+    int currentIndex = this.hb.getResourceIndex(card);
     if (currentIndex == -1) return; // Controllo di sicurezza se la card non viene trovata
-
-    ContenutoEntity risorsa = (ContenutoEntity) card.getUserData();
     int targetIndex = -1;
 
-    // 2. Determina l'indice di destinazione in base alla direzione
+    //Determina l'indice di destinazione in base alla direzione
     if (d == 1) { // Freccia Sinistra / Su
         if (currentIndex <= 0) return; // Giò è il primo elemento, ignora
         targetIndex = currentIndex - 1;
@@ -278,48 +278,89 @@ public void invertiOrdineRisorse(int d, VBox card) {
     }
 
     // 3. Recupera la card partner con cui effettuare lo scambio
-    VBox partnerCard = this.hb.getCardByIndex(targetIndex);
-    if (partnerCard == null) return;
-    ContenutoEntity partnerRisorsa = (ContenutoEntity) partnerCard.getUserData();
+    ContenutoEntity partnerRisorsa = this.hb.getCardByIndex(targetIndex);
+    if (partnerRisorsa == null) return;
+    
 
-    // 4. Scambio dati logico sulle Entity (Puro BCE)
-    int posIniziale = risorsa.getPosizione();
-    risorsa.setPosizione(partnerRisorsa.getPosizione());
+    //Scambio dati logico sulle Entity (Puro BCE)
+    int posIniziale = card.getPosizione();
+    card.setPosizione(partnerRisorsa.getPosizione());
     partnerRisorsa.setPosizione(posIniziale);
 
-    // 5. Richiesta alla Boundary di effettuare lo swap atomico sulla UI
+    //Richiesta alla Boundary di effettuare lo swap atomico sulla UI
     this.hb.scambiaCardNelContenitore(currentIndex, targetIndex);
-
-    // 6. Ricalcola lo stato visivo abilitato/disabilitato/visibile di tutte le frecce
+    
+    // Ricalcola lo stato visivo abilitato/disabilitato/visibile di tutte le frecce
     this.abilitaRiodinamentoContenuti();
+
 }
 
 
-  public void cercaUtente(){
+  public void cercaUtente(String query){
+    if(query == null ||query.trim().isEmpty()){
+        this.hb.pulisciRisultatiRicercaUtenti();
+        this.ab.alert("Inserisci un nome e cognome per la ricerca.");
+        return;
+    }
+    try {
+        ArrayList<StudenteEntity> risultati = this.db.cerca(query.trim(), this.email);
 
+        if (risultati.isEmpty()) {
+            this.ab.alert("Nessun utente trovato.");
+            return;
+        }
+
+        this.hb.mostraListaStudenti(risultati);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        this.ab.alert("Errore durante la ricerca degli utenti.");
+    }   
   }
-
-  public void createPublicContentBound(){
-
-  }
-
-  public void visualizzaUtente(){
-
-  }
-
-  public void requestPublicContent(){
-
-  }
-
-  public void caricaContenuto(){
-
-  }
-
-  public void cancellaNomeInserito(){
     
-  }
 
+    public void createPublicContentBound(StudenteEntity studente) {
+        PublicContentBound publicContentBound = new PublicContentBound(this, studente);
 
+        this.hb.mostraPublicContentBound(publicContentBound);
 
+        this.requestPublicContent(studente);
+    }
+
+    public void visualizzaStudente(StudenteEntity studente) {
+        if (studente == null) {
+            this.ab.alert("Studente non valido.");
+            return;
+        }
+
+        this.createPublicContentBound(studente);
+    }
+
+    public void requestPublicContent(StudenteEntity studente) {
+        List<ContenutoEntity> contentList = this.db.getResources(studente.getEmail());
+
+        if (contentList == null || contentList.isEmpty()) {
+            this.hb.mostraListaContenutiPubblici(contentList);
+            return;
+        }
+
+        for (ContenutoEntity contenuto : contentList) {
+            this.caricaContenuto(contenuto);
+        }
+    }
+
+    public void caricaContenuto(ContenutoEntity contenuto) {
+        this.hb.caricaContenutoPubblico(contenuto);
+    }
+
+    public void tornaHome() {
+    Stage currentStage = (Stage) this.hb.getRootContainer().getScene().getWindow();
+    PageControl pc = new PageControl(currentStage);
+    pc.createHomePageBoundary(this.email);
+    }
+
+    public void cancellaNomeInserito(){
+    
+    }
 
 }

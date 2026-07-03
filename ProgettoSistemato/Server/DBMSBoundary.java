@@ -326,22 +326,69 @@ public List<ContenutoEntity> getResources(String email) {
     public void aggiornaPosizioniContenuti(HashMap<Integer, Integer> mappaPosizioni) throws SQLException {
         String query = "UPDATE contenuti SET posizione = ? WHERE id = ?";
         
-        try (Connection conn = eseguiConnessione();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-             
-            for (HashMap.Entry<Integer, Integer> entry : mappaPosizioni.entrySet()) {
-                int id = entry.getKey();
-                int nuovaPosizione = entry.getValue();
+            try (Connection conn = eseguiConnessione();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
                 
-                stmt.setInt(1, nuovaPosizione);
-                stmt.setInt(2, id);
+                for (HashMap.Entry<Integer, Integer> entry : mappaPosizioni.entrySet()) {
+                    int id = entry.getKey();
+                    int nuovaPosizione = entry.getValue();
+                    
+                    stmt.setInt(1, nuovaPosizione);
+                    stmt.setInt(2, id);
+                    
+                    
+                    stmt.addBatch(); // Aggiunge l'aggiornamento al batch
+                }
                 
-                
-                stmt.addBatch(); // Aggiunge l'aggiornamento al batch
+                stmt.executeBatch(); // Esegue tutti gli aggiornamenti in batch
             }
-            
-            stmt.executeBatch(); // Esegue tutti gli aggiornamenti in batch
         }
-    }
+        public ArrayList<StudenteEntity> cerca(String query, String emailCorrente) throws SQLException {
+        ArrayList<StudenteEntity> risultati = new ArrayList<>();
 
+        String sql = """
+            SELECT matricola, nome, cognome, email, codice_fiscale, password, descrizione, foto_profilo
+            FROM utenti
+            WHERE email <> ?
+            AND (
+                nome LIKE ?
+                OR cognome LIKE ?
+                OR CONCAT(nome, ' ', cognome) LIKE ?
+                OR CONCAT(cognome, ' ', nome) LIKE ?
+            )
+            LIMIT 10
+        """;
+
+        try (Connection conn = eseguiConnessione();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            String pattern = "%" + query.trim() + "%";
+
+            stmt.setString(1, emailCorrente);
+            stmt.setString(2, pattern);
+            stmt.setString(3, pattern);
+            stmt.setString(4, pattern);
+            stmt.setString(5, pattern);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    StudenteEntity studente = new StudenteEntity(
+                        rs.getString("matricola"),
+                        rs.getString("nome"),
+                        rs.getString("cognome"),
+                        rs.getString("email"),
+                        rs.getString("codice_fiscale"),
+                        rs.getString("password")
+                    );
+
+                    studente.setDescrizione(rs.getString("descrizione"));
+                    studente.setFotoProfilo(rs.getBytes("foto_profilo"));
+
+                    risultati.add(studente);
+                }
+            }
+        }
+
+        return risultati;
+    }
 } 
