@@ -160,7 +160,6 @@ public class HomePageBoundary {
         this.txtCercaUtenti.setPrefWidth(200);
         this.txtCercaUtenti.setStyle("-fx-background-color: #F4F7FB; -fx-border-color: #C4D1DF; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 8 12; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;");
 
-        // Container risultati ricerca utenti
         this.risultatiRicercaUtentiContainer = new VBox(8);
         this.risultatiRicercaUtentiContainer.setPadding(new Insets(10, 35, 10, 35));
         this.risultatiRicercaUtentiContainer.setStyle("-fx-background-color: transparent;");
@@ -182,31 +181,6 @@ public class HomePageBoundary {
         topBar.getChildren().addAll(this.btnCaricaFile, this.btnCondividiContenuti, this.btnInvia, this.btnRiordinaContenuti, this.btnGestioneProfilo, this.btnModificaProfilo, this.btnSalva, this.txtCercaUtenti);
         header.getChildren().addAll(topHeaderRow, topBar);
 
-        // --- NUOVA SEZIONE: DESCRIZIONE PROFILO UTENTE (SOPRA AI CONTENUTI) ---
-        VBox bioSection = new VBox(10);
-        bioSection.setPadding(new Insets(25, 35, 10, 35));
-        bioSection.setStyle("-fx-background-color: transparent;");
-        
-        HBox bioTitleBar = new HBox(15);
-        bioTitleBar.setAlignment(Pos.CENTER_LEFT);
-        
-        Label lblBioTitle = new Label("Descrizione del Profilo / Biografia");
-        lblBioTitle.setStyle("-fx-font-family: 'Georgia'; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #12305C;");
-        
-        Button btnModificaBio = new Button("Modifica Descrizione");
-        btnModificaBio.setStyle("-fx-background-color: transparent; -fx-border-color: #C4D1DF; -fx-border-radius: 12; -fx-text-fill: #556E8A; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 12;");
-        btnModificaBio.setOnMouseEntered(e -> btnModificaBio.setStyle("-fx-background-color: #F4F7FB; -fx-border-color: #12305C; -fx-border-radius: 12; -fx-text-fill: #12305C; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 12;"));
-        btnModificaBio.setOnMouseExited(e -> btnModificaBio.setStyle("-fx-background-color: transparent; -fx-border-color: #C4D1DF; -fx-border-radius: 12; -fx-text-fill: #556E8A; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 12;"));
-        btnModificaBio.setOnAction(event -> modificaFoto()); 
-
-        bioTitleBar.getChildren().addAll(lblBioTitle, btnModificaBio);
-        
-        Label lblBioContent = new Label("Nessuna descrizione inserita. Modifica il tuo profilo per aggiungere una breve biografia o per presentare le tue opere.");
-        lblBioContent.setWrapText(true);
-        lblBioContent.setStyle("-fx-font-family: 'Segoe UI'; -fx-font-size: 14px; -fx-text-fill: #556E8A; -fx-line-spacing: 4px;");
-        
-        bioSection.getChildren().addAll(bioTitleBar, lblBioContent);
-
         // --- CONTENITORE RISORSE ---
         this.resourcesContainer = new FlowPane();
         this.resourcesContainer.setHgap(35);
@@ -218,7 +192,7 @@ public class HomePageBoundary {
         // VBox interno allo ScrollPane che impila la sezione Descrizione sopra la Galleria di Contenuti
         VBox scrollContentWrapper = new VBox(0);
         scrollContentWrapper.setStyle("-fx-background-color: transparent;");
-        scrollContentWrapper.getChildren().addAll(bioSection, this.risultatiRicercaUtentiContainer, this.resourcesContainer);
+        scrollContentWrapper.getChildren().addAll(this.risultatiRicercaUtentiContainer, this.resourcesContainer);
         
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(scrollContentWrapper);
@@ -257,11 +231,15 @@ public class HomePageBoundary {
         }
     }
 
-    public void mostraPannelloCaricamentoFoto(CaricaFotoProfiloBound cfpb){
+    public void mostraPannelloGestioneProfilo(GestioneProfiloBound gestioneProfiloBound){
         Stage currenteStage = (Stage) this.rootContainer.getScene().getWindow();
-        VBox layout = cfpb.visualizza();
+        VBox layout = gestioneProfiloBound.visualizza();
         Scene reindirizzamentoScene = new Scene(layout, 400, 300);
         currenteStage.setScene(reindirizzamentoScene);
+    }
+
+    public void mostraPannelloCaricamentoFoto(GestioneProfiloBound gestioneProfiloBound){
+        this.mostraPannelloGestioneProfilo(gestioneProfiloBound);
     }
 
     public int getNumberOfCards(){
@@ -279,14 +257,13 @@ public class HomePageBoundary {
     public void cercaUtenti(String query) {
         this.ricercaUtente(query);
     }
-    public void clickGestioneProfilo() {}
+
+    public void clickGestioneProfilo() {
+        this.hc.createGestioneProfiloBound();
+    }
 
     public void modificaFoto() {
-    
-    // Delega l'azione al controller
-    this.hc.createCaricaFotoProfiloBound();
-
-
+        this.hc.createGestioneProfiloBound();
     }
 
     public void mostraRisorsa() { 
@@ -297,37 +274,28 @@ public class HomePageBoundary {
     }
 
     public void setUserInfo(StudenteEntity studente) {
-        if (studente == null) return;
-        try {
-            VBox header = (VBox) this.rootContainer.getChildren().get(0);
-            HBox topHeaderRow = (HBox) header.getChildren().get(0);
-            VBox profileVBox = (VBox) topHeaderRow.getChildren().get(2);
-            HBox profileContainer = (HBox) profileVBox.getChildren().get(0);
-            Label lblNomeCognome = (Label) profileVBox.getChildren().get(1);
-            ImageView profileImageView = (ImageView) profileContainer.getChildren().get(1);
+    if (studente == null) return;
 
-            lblNomeCognome.setText(studente.getNome() + " " + studente.getCognome());
+    try {
+        VBox header = (VBox) this.rootContainer.getChildren().get(0);
+        HBox topHeaderRow = (HBox) header.getChildren().get(0);
+        VBox profileVBox = (VBox) topHeaderRow.getChildren().get(2);
+        HBox profileContainer = (HBox) profileVBox.getChildren().get(0);
+        Label lblNomeCognome = (Label) profileVBox.getChildren().get(1);
+        ImageView profileImageView = (ImageView) profileContainer.getChildren().get(1);
 
-            if (studente.getFotoProfilo() != null && studente.getFotoProfilo().length > 0) {
-                ByteArrayInputStream bis = new ByteArrayInputStream(studente.getFotoProfilo());
-                profileImageView.setImage(new Image(bis));
-            }
+        lblNomeCognome.setText(studente.getNome() + " " + studente.getCognome());
 
-            ScrollPane scrollPane = (ScrollPane) this.rootContainer.getChildren().get(1);
-            VBox scrollContentWrapper = (VBox) scrollPane.getContent();
-            VBox bioSection = (VBox) scrollContentWrapper.getChildren().get(0);
-            Label lblBioContent = (Label) bioSection.getChildren().get(1);
-
-            if (studente.getDescrizione() != null && !studente.getDescrizione().trim().isEmpty()) {
-                lblBioContent.setText(studente.getDescrizione());
-            } else {
-                lblBioContent.setText("Nessuna descrizione inserita. Modifica il tuo profilo per aggiungere una breve biografia o per presentare le tue opere.");
-            }
-        } catch (Exception e) {
-            System.err.println("Errore durante l'aggiornamento dei dati utente nell'interfaccia:");
-            e.printStackTrace();
+        if (studente.getFotoProfilo() != null && studente.getFotoProfilo().length > 0) {
+            ByteArrayInputStream bis = new ByteArrayInputStream(studente.getFotoProfilo());
+            profileImageView.setImage(new Image(bis));
         }
+
+    } catch (Exception e) {
+        System.err.println("Errore durante l'aggiornamento dei dati utente nell'interfaccia:");
+        e.printStackTrace();
     }
+}
 
     public void caricaDatiRisorsa(ContenutoEntity risorsa) {
         if (this.resourcesContainer.getChildren().isEmpty()) return;
@@ -632,7 +600,6 @@ public class HomePageBoundary {
     
     return selezionati;
     }
-
     public void pulisciRisultatiRicercaUtenti() {
         if (this.risultatiRicercaUtentiContainer != null) {
             this.risultatiRicercaUtentiContainer.getChildren().clear();
@@ -718,4 +685,5 @@ public class HomePageBoundary {
         }
     }
 
+    
 }

@@ -57,10 +57,11 @@ public class PublicContentBound {
         HBox profileBox = new HBox(20);
         profileBox.setAlignment(Pos.CENTER_LEFT);
 
-        ImageView imgProfilo = new ImageView();
+       ImageView imgProfilo = new ImageView();
         imgProfilo.setFitWidth(80);
         imgProfilo.setFitHeight(80);
-        imgProfilo.setPreserveRatio(true);
+        imgProfilo.setPreserveRatio(false);
+        imgProfilo.setSmooth(true);
 
         if (studente.getFotoProfilo() != null && studente.getFotoProfilo().length > 0) {
             imgProfilo.setImage(new Image(new ByteArrayInputStream(studente.getFotoProfilo())));

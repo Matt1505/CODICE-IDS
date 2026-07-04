@@ -71,25 +71,36 @@ public class HomePageControl {
     }
 
         
-        public void salvaContenuto(String titolo, String descrizione,Object windowC) {
-        if (this.fileBlob == null) {
-            this.ab.alert("Errore: Seleziona prima un file d'arte!");
-            return;
-        }
-        try {
-            int maxPosizione = this.getMaxPosizione()+1;
-            this.db.inserisciContenuto(this.fileBlob, titolo, descrizione, this.tipo, this.email,maxPosizione);
-            this.ab.alert("Contenuto salvato con successo!");
-            this.fileBlob = null;
-            this.tipo = null;
-
-           
-            this.clickHome(windowC);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        public void salvaContenuto(String titolo, String descrizione, boolean pubblico, Object windowC) {
+    if (this.fileBlob == null) {
+        this.ab.alert("Errore: Seleziona prima un file d'arte!");
+        return;
     }
+
+    try {
+        int maxPosizione = this.getMaxPosizione() + 1;
+
+        this.db.inserisciContenuto(
+            this.fileBlob,
+            titolo,
+            descrizione,
+            this.tipo,
+            this.email,
+            maxPosizione,
+            pubblico
+        );
+
+        this.ab.alert("Contenuto salvato con successo!");
+        this.fileBlob = null;
+        this.tipo = null;
+
+        this.clickHome(windowC);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        this.ab.alert("Errore durante il salvataggio del contenuto.");
+    }
+}
 
     public int getMaxPosizione() throws SQLException {
         return db.getMaxPosizione(this.email);
@@ -183,13 +194,21 @@ public class HomePageControl {
     }
   }
 
-  public void createCaricaFotoProfiloBound() {
-    CaricaFotoProfiloBound cfpb = new CaricaFotoProfiloBound(this);
-    mostraCaricamentoImmagine(cfpb);
+  public void createGestioneProfiloBound() {
+    GestioneProfiloBound gestioneProfiloBound = new GestioneProfiloBound(this);
+    this.mostraGestioneProfilo(gestioneProfiloBound);
   }
 
-  public void mostraCaricamentoImmagine(CaricaFotoProfiloBound cfpb){ 
-    this.hb.mostraPannelloCaricamentoFoto(cfpb);
+  public void createCaricaGestioneProfiloBound() {
+    this.createGestioneProfiloBound();
+  }
+
+  public void createCaricaFotoProfiloBound() {
+    this.createGestioneProfiloBound();
+  }
+
+  public void mostraGestioneProfilo(GestioneProfiloBound gestioneProfiloBound){ 
+    this.hb.mostraPannelloGestioneProfilo(gestioneProfiloBound);
   }
 
  
@@ -330,7 +349,7 @@ public void visualizzaStudente(StudenteEntity studente) {
 }
 
 public void requestPublicContent(StudenteEntity studente) {
-    List<ContenutoEntity> contentList = this.db.getResources(studente.getEmail());
+    List<ContenutoEntity> contentList = this.db.getPublicResources(studente.getEmail());
 
     if (contentList == null || contentList.isEmpty()) {
         this.hb.mostraListaContenutiPubblici(contentList);
@@ -392,5 +411,39 @@ public void cancellaNomeInserito() {
             e.printStackTrace();
         }
     }
+    public void logout(Object windowContext) {
+        client.gestioneCredenziali.LoginBound loginBound = new client.gestioneCredenziali.LoginBound();
+        loginBound.visualizza(windowContext);
+    }
+    public String getDescrizioneProfilo() {
+    try {
+        StudenteEntity studente = this.db.getUserInfo(this.email);
 
+        if (studente != null && studente.getDescrizione() != null) {
+            return studente.getDescrizione();
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        this.ab.alert("Errore durante il recupero della descrizione profilo.");
+    }
+
+    return "";
+}
+
+public void aggiornaDescrizioneProfilo(String descrizione, Object windowContext) {
+    try {
+        this.db.aggiornaDescrizioneProfilo(this.email, descrizione);
+        this.ab.alert("Descrizione profilo aggiornata con successo!");
+        this.clickHome(windowContext);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        this.ab.alert("Errore durante l'aggiornamento della descrizione profilo.");
+    }
+}
+
+    public byte[] getFotoProfilo() {
+        return this.db.getProfilePicture(this.email);
+    }
 }

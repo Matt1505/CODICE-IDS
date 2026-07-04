@@ -214,25 +214,52 @@ try (Connection conn = eseguiConnessione();
 }
 
 
-public boolean inserisciContenuto(byte[] file, String titolo, String descrizione, String tipo, String email,int posizione) throws SQLException {
-        String query = "INSERT INTO contenuti (titolo, descrizione, tipo, file_blob, studente_email,posizione) VALUES (?, ?, ?, ?, ?, ?)";
+public boolean inserisciContenuto(byte[] file, String titolo, String descrizione, String tipo, String email, int posizione, boolean isPubblic) throws SQLException {
+    String query = "INSERT INTO contenuti (titolo, descrizione, tipo, file_blob, studente_email, posizione, isPubblic) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    
+    try (Connection conn = eseguiConnessione();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+         
+        stmt.setString(1, titolo);
+        stmt.setString(2, descrizione);
+        stmt.setString(3, tipo);
+        stmt.setBytes(4, file);
+        stmt.setString(5, email);
+        stmt.setInt(6, posizione);
+        stmt.setBoolean(7, isPubblic);
         
-        try (Connection conn = eseguiConnessione();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-             
-            stmt.setString(1, titolo);
-            stmt.setString(2, descrizione);
-            stmt.setString(3, tipo);
-            stmt.setBytes(4, file);
-            stmt.setString(5, email);
-            stmt.setInt(6, posizione);
-            
-            
-            int righeImpatto = stmt.executeUpdate();
-            return righeImpatto > 0;
+        int righeImpatto = stmt.executeUpdate();
+        return righeImpatto > 0;
+    }
+}
+
+public List<ContenutoEntity> getPublicResources(String email) {
+    List<ContenutoEntity> userResources = new ArrayList<>();
+    String query = "SELECT id, file_blob, titolo, descrizione, tipo, posizione FROM contenuti WHERE studente_email = ? AND isPubblic = TRUE ORDER BY posizione ASC";
+
+    try (Connection conn = eseguiConnessione();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+
+        stmt.setString(1, email);
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                byte[] file = rs.getBytes("file_blob");
+                String titolo = rs.getString("titolo");
+                String descrizione = rs.getString("descrizione");
+                String tipo = rs.getString("tipo");
+                int posizione = rs.getInt("posizione");
+
+                userResources.add(new ContenutoEntity(id, file, titolo, descrizione, tipo, posizione));
+            }
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
 
+    return userResources;
+}
 
 public List<ContenutoEntity> getResources(String email) {
         List<ContenutoEntity> userResources = new ArrayList<>();
@@ -392,5 +419,20 @@ public List<ContenutoEntity> getResources(String email) {
 
         return risultati;
     }
+public void aggiornaDescrizioneProfilo(String email, String descrizione) throws SQLException {
+    String query = "UPDATE utenti SET descrizione = ? WHERE email = ?";
 
+    try (Connection conn = eseguiConnessione();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+
+        stmt.setString(1, descrizione);
+        stmt.setString(2, email);
+
+        int righeImpatto = stmt.executeUpdate();
+
+        if (righeImpatto == 0) {
+            throw new SQLException("Nessun utente trovato con l'email specificata.");
+        }
+    }
+}
 } 

@@ -20,7 +20,8 @@ public class CaricamentoFileBound {
     private Label lblStatusFile;
     private String email;
     
-    
+    private CheckBox chkPubblico;
+
     // Il costruttore riceve la Control
     public CaricamentoFileBound(HomePageControl controller) {
         this.controller = controller;
@@ -41,6 +42,10 @@ public class CaricamentoFileBound {
         txtDescrizione.setPromptText("Inserisci una breve descrizione artistica o note sul contenuto...");
         txtDescrizione.setPrefRowCount(3);
         txtDescrizione.setWrapText(true);
+
+        this.chkPubblico = new CheckBox("Rendi pubblico questo contenuto");
+        this.chkPubblico.setSelected(true);
+        this.chkPubblico.setStyle("-fx-text-fill: #16325B; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px; -fx-font-weight: bold;");
 
         Button btnSeleziona = new Button("Sfoglia File d'Arte...");
         btnSeleziona.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 15; -fx-cursor: hand;");
@@ -78,9 +83,13 @@ public class CaricamentoFileBound {
 
         root.getChildren().addAll(
                 lblIntestazione,
-                lblTitolo, txtTitolo, 
-                lblDesc, txtDescrizione, 
-                btnSeleziona, lblStatusFile, 
+                lblTitolo, 
+                txtTitolo, 
+                lblDesc, 
+                txtDescrizione, 
+                btnSeleziona, 
+                lblStatusFile,
+                this.chkPubblico, 
                 new Separator(), 
                 btnAggiungi,
                 btnAnnulla
@@ -107,12 +116,13 @@ public class CaricamentoFileBound {
 
 
     // Risolto l'errore 3: Il metodo si limita a prelevare le stringhe e inviarle alla Control conformemente al tipo richiesto (String, String)
-    public void confermaCaricamentoContenuto() {
-        String titolo = txtTitolo.getText();
-        String descrizione = txtDescrizione.getText();
-
-        // Passa solo i campi di testo richiesti, rimuovendo il parametro superfluo "fileBlob"
-        controller.salvaContenuto(titolo, descrizione,txtTitolo.getScene().getWindow());
+    private void confermaCaricamentoContenuto() {
+        controller.salvaContenuto(
+            txtTitolo.getText(),
+            txtDescrizione.getText(),
+            this.chkPubblico.isSelected(),
+            this.txtTitolo.getScene().getWindow()
+        );
     }
 
 private void goHome() {
