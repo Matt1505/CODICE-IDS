@@ -47,7 +47,7 @@ public class PublicContentBound {
 
         Button btnIndietro = new Button("← Torna alla home");
         btnIndietro.setStyle("-fx-background-color: transparent; -fx-border-color: #12305C; -fx-text-fill: #12305C; -fx-font-weight: bold; -fx-padding: 8 12; -fx-cursor: hand;");
-        btnIndietro.setOnAction(e -> this.hc.tornaHome());
+        btnIndietro.setOnAction(e -> this.hc.clickHome(this.rootContainer.getScene().getWindow()));
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);

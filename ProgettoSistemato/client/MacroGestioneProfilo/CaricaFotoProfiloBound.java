@@ -9,7 +9,6 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.sql.SQLException;
 
-import client.Altro.PageControl;
 
 public class CaricaFotoProfiloBound {
     // Riferimento alla Control per passare i dati

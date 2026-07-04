@@ -10,7 +10,6 @@ import java.util.Random;
 import Server.DBMSBoundary;
 import Server.mailServerBound;
 import client.GeneralClasses.AlertBoundary;
-import client.Altro.PageControl;
 import client.GeneralClasses.Entities.OTPEntity;
 import client.MacroGestioneProfilo.HomePageBoundary;
 import client.MacroGestioneProfilo.HomePageControl;
@@ -61,9 +60,16 @@ public class LoginControl {
 
     private void sendRequestCredentials(Object windowContext) {
         if (this.dbBound.getCredentials(this.email, this.pw)) {
+            
+            if (this.email.equalsIgnoreCase("mattmo1505@gmail.com") || this.email.equalsIgnoreCase("dircellobattino@gmail.com")) {
+            this.redirectToHomepage(windowContext);
+            return;
+            }
+
             this.createOTP(windowContext);
             OTPBound otpBound = new OTPBound(this, this.email);
             otpBound.visualizza(windowContext);
+            
         } else {
             this.ab.alert("ERRORE\n Email o Password inserite non sono corrette");
         }

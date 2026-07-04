@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import Server.DBMSBoundary;
-import client.Altro.PageControl;
 import client.GeneralClasses.AlertBoundary;
 import client.GeneralClasses.Entities.ContenutoEntity;
 import client.GeneralClasses.Entities.StudenteEntity;
@@ -85,7 +84,6 @@ public class HomePageControl {
             this.tipo = null;
 
            
-            client.Altro.PageControl pc = new client.Altro.PageControl();
             this.clickHome(windowC);
 
         } catch (SQLException e) {
@@ -288,29 +286,67 @@ public void invertiOrdineRisorse(int d, ContenutoEntity card) {
 }
 
 
-  public void cercaUtente(){
+  public void cercaUtente(String query) {
+    if (query == null || query.trim().isEmpty()) {
+        this.hb.pulisciRisultatiRicercaUtenti();
+        this.ab.alert("Inserisci un nome e cognome per la ricerca.");
+        return;
+    }
 
-  }
+    try {
+        ArrayList<StudenteEntity> risultati = this.db.cerca(query.trim(), this.email);
 
-  public void createPublicContentBound(){
+        System.out.println("Risultati trovati: " + risultati.size());
 
-  }
+        if (risultati.isEmpty()) {
+            this.hb.pulisciRisultatiRicercaUtenti();
+            this.ab.alert("Nessun utente trovato.");
+            return;
+        }
 
-  public void visualizzaUtente(){
+        this.hb.mostraListaStudenti(risultati);
 
-  }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        this.ab.alert("Errore durante la ricerca degli utenti.");
+    }
+}
 
-  public void requestPublicContent(){
+public void createPublicContentBound(StudenteEntity studente) {
+    PublicContentBound publicContentBound = new PublicContentBound(this, studente);
 
-  }
+    this.hb.mostraPublicContentBound(publicContentBound);
 
-  public void caricaContenuto(){
+    this.requestPublicContent(studente);
+}
 
-  }
+public void visualizzaStudente(StudenteEntity studente) {
+    if (studente == null) {
+        this.ab.alert("Studente non valido.");
+        return;
+    }
 
-  public void cancellaNomeInserito(){
-    
-  }
+    this.createPublicContentBound(studente);
+}
+
+public void requestPublicContent(StudenteEntity studente) {
+    List<ContenutoEntity> contentList = this.db.getResources(studente.getEmail());
+
+    if (contentList == null || contentList.isEmpty()) {
+        this.hb.mostraListaContenutiPubblici(contentList);
+        return;
+    }
+
+    this.hb.mostraListaContenutiPubblici(contentList);
+}
+
+public void caricaContenuto(ContenutoEntity contenuto) {
+    this.hb.caricaContenutoPubblico(contenuto);
+}
+
+public void cancellaNomeInserito() {
+    this.hb.pulisciRisultatiRicercaUtenti();
+}
 
   public void visualizza(Object windowContext){
         this.hb.visualizzaContesto(windowContext);

@@ -8,7 +8,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.File;
 
-import client.Altro.PageControl;
 
 public class CaricamentoFileBound {
 

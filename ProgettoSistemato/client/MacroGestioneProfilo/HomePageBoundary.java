@@ -37,8 +37,10 @@ public class HomePageBoundary {
     private Button btnModificaProfilo;
     private Button btnSalva;
     private Button btnInvia;
-    private TextField txtCercaUtenti;    
+    private TextField txtCercaUtenti;
+    private VBox risultatiRicercaUtentiContainer;
     private SendFileControl sendFileControl;
+    private PublicContentBound publicContentBound;
       
     public HomePageBoundary(String email) {
         this.email = email;
@@ -157,7 +159,19 @@ public class HomePageBoundary {
         this.txtCercaUtenti.setPromptText(" Cerca altri utenti...");
         this.txtCercaUtenti.setPrefWidth(200);
         this.txtCercaUtenti.setStyle("-fx-background-color: #F4F7FB; -fx-border-color: #C4D1DF; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 8 12; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;");
-        this.txtCercaUtenti.setOnAction(event -> cercaUtenti(txtCercaUtenti.getText()));
+
+        // Container risultati ricerca utenti
+        this.risultatiRicercaUtentiContainer = new VBox(8);
+        this.risultatiRicercaUtentiContainer.setPadding(new Insets(10, 35, 10, 35));
+        this.risultatiRicercaUtentiContainer.setStyle("-fx-background-color: transparent;");
+
+        this.txtCercaUtenti.setOnAction(event -> ricercaUtente(this.txtCercaUtenti.getText()));
+
+        this.txtCercaUtenti.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null || newValue.trim().isEmpty()) {
+                this.pulisciRisultatiRicercaUtenti();
+            }
+        });
         
         this.btnModificaProfilo = new Button("Modifica Profilo");
         this.btnModificaProfilo.setStyle(navBtnStyle);
@@ -204,7 +218,7 @@ public class HomePageBoundary {
         // VBox interno allo ScrollPane che impila la sezione Descrizione sopra la Galleria di Contenuti
         VBox scrollContentWrapper = new VBox(0);
         scrollContentWrapper.setStyle("-fx-background-color: transparent;");
-        scrollContentWrapper.getChildren().addAll(bioSection, this.resourcesContainer);
+        scrollContentWrapper.getChildren().addAll(bioSection, this.risultatiRicercaUtentiContainer, this.resourcesContainer);
         
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(scrollContentWrapper);
@@ -258,12 +272,21 @@ public class HomePageBoundary {
         this.hc.abilitaRiodinamentoContenuti();
     }
 
+    public void ricercaUtente(String query) {
+        this.hc.cercaUtente(query);
+    }
+
     public void cercaUtenti(String query) {
-        if(query != null && !query.trim().isEmpty()) { }
+        this.ricercaUtente(query);
     }
     public void clickGestioneProfilo() {}
+
     public void modificaFoto() {
-        this.hc.createCaricaFotoProfiloBound();
+    
+    // Delega l'azione al controller
+    this.hc.createCaricaFotoProfiloBound();
+
+
     }
 
     public void mostraRisorsa() { 
@@ -609,4 +632,90 @@ public class HomePageBoundary {
     
     return selezionati;
     }
+
+    public void pulisciRisultatiRicercaUtenti() {
+        if (this.risultatiRicercaUtentiContainer != null) {
+            this.risultatiRicercaUtentiContainer.getChildren().clear();
+        }
+    }
+
+    public void mostraListaStudenti(List<StudenteEntity> listaStudenti) {
+        this.risultatiRicercaUtentiContainer.getChildren().clear();
+
+        Label titolo = new Label("Risultati ricerca utenti");
+        titolo.setStyle("-fx-font-family: 'Georgia'; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #12305C;");
+        this.risultatiRicercaUtentiContainer.getChildren().add(titolo);
+
+        if (listaStudenti == null || listaStudenti.isEmpty()) {
+            Label nessunRisultato = new Label("Nessun utente trovato.");
+            nessunRisultato.setStyle("-fx-font-family: 'Segoe UI'; -fx-font-size: 13px; -fx-text-fill: #8FA9C7;");
+            this.risultatiRicercaUtentiContainer.getChildren().add(nessunRisultato);
+            return;
+        }
+
+        for (StudenteEntity utente : listaStudenti) {
+            HBox cardUtente = new HBox(15);
+            cardUtente.setAlignment(Pos.CENTER_LEFT);
+            cardUtente.setPadding(new Insets(12));
+            cardUtente.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E8EFF5; -fx-border-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(9,27,51,0.05), 8, 0, 0, 3);");
+
+            ImageView imgProfilo = new ImageView();
+            imgProfilo.setFitWidth(40);
+            imgProfilo.setFitHeight(40);
+            imgProfilo.setPreserveRatio(false);
+
+            if (utente.getFotoProfilo() != null && utente.getFotoProfilo().length > 0) {
+                imgProfilo.setImage(new Image(new ByteArrayInputStream(utente.getFotoProfilo())));
+            } else {
+                try {
+                    imgProfilo.setImage(new Image(getClass().getResourceAsStream("/Assets/defaultProfilePicture.jpeg")));
+                } catch (Exception e) {
+                    // Ignora se manca immagine default
+                }
+            }
+
+            Circle clip = new Circle(20, 20, 20);
+            imgProfilo.setClip(clip);
+
+            VBox infoUtente = new VBox(3);
+
+            Label nomeCognome = new Label(utente.getNome() + " " + utente.getCognome());
+            nomeCognome.setStyle("-fx-font-family: 'Segoe UI'; -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #12305C;");
+
+            Label emailLabel = new Label(utente.getEmail());
+            emailLabel.setStyle("-fx-font-family: 'Segoe UI'; -fx-font-size: 12px; -fx-text-fill: #556E8A;");
+
+            infoUtente.getChildren().addAll(nomeCognome, emailLabel);
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            Button btnVisualizza = new Button("Visualizza profilo");
+            btnVisualizza.setStyle("-fx-background-color: linear-gradient(to right, #1A4073, #12305C); -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 7 14; -fx-background-radius: 20; -fx-cursor: hand;");
+            btnVisualizza.setOnAction(e -> this.hc.visualizzaStudente(utente));
+
+            cardUtente.getChildren().addAll(imgProfilo, infoUtente, spacer, btnVisualizza);
+            this.risultatiRicercaUtentiContainer.getChildren().add(cardUtente);
+        }
+    }
+
+    public void mostraPublicContentBound(PublicContentBound publicContentBound) {
+        this.publicContentBound = publicContentBound;
+
+        this.rootContainer.getChildren().clear();
+        this.rootContainer.getChildren().add(this.publicContentBound.visualizza());
+    }
+
+    public void mostraListaContenutiPubblici(List<ContenutoEntity> contenuti) {
+        if (this.publicContentBound != null) {
+            this.publicContentBound.mostraListaContenuti(contenuti);
+        }
+    }
+
+    public void caricaContenutoPubblico(ContenutoEntity contenuto) {
+        if (this.publicContentBound != null && contenuto != null) {
+            this.publicContentBound.caricaContenuto(contenuto);
+        }
+    }
+
 }
