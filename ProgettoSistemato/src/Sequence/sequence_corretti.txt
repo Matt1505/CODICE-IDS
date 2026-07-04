@@ -1,0 +1,31 @@
+Gestione Credenziali
+
+Registrazione V
+Login V ma fai sistemare sequence a macinato
+Logout
+ModificaPassword
+RecuperaPassword
+
+Gestione Profilo
+CaricamentoFile V
+CaricaFotoProfilo
+ModificaBio
+RiordinaFile
+ModificaPosiione
+ApplicaOrinamento
+
+Gestione Condivisione
+CondivisioneFile
+VisualizzaCondivisioniPassate
+RimozioneCondivisionePassata
+RiscontroVisualizzazione
+
+Altro
+
+Errore Connessione DBMS
+Errore Connessione Cloud
+Errore Connessione MailServer
+RicercaUtente
+Visualizzazione HomePage V
+
+4/21
