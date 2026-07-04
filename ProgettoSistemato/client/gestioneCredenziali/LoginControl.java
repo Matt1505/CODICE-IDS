@@ -158,10 +158,7 @@ public class LoginControl {
         lb.visualizza(windowContext);
     }
 
-    private void redirectToHomepage() {
-        HomePageBoundary hb= new HomePageBoundary(email);
-        hb.visualizza();
-    }
+
 
     
 }
