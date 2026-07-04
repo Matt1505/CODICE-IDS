@@ -103,6 +103,10 @@ public class CaricamentoFileBound {
             
         }
     }
+
+    
+
+
     // Risolto l'errore 3: Il metodo si limita a prelevare le stringhe e inviarle alla Control conformemente al tipo richiesto (String, String)
     public void confermaCaricamentoContenuto() {
         String titolo = txtTitolo.getText();

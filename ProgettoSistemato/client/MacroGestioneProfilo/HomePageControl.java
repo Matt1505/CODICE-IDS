@@ -1,9 +1,5 @@
 package client.MacroGestioneProfilo;
 
-import Server.DBMSBoundary;
-import client.GeneralClasses.AlertBoundary;
-import client.GeneralClasses.Entities.ContenutoEntity;
-import client.GeneralClasses.Entities.StudenteEntity;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,6 +9,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import Server.DBMSBoundary;
+import client.Altro.PageControl;
+import client.GeneralClasses.AlertBoundary;
+import client.GeneralClasses.Entities.ContenutoEntity;
+import client.GeneralClasses.Entities.StudenteEntity;
+
+import java.util.HashMap;
+
 public class HomePageControl {
     private HomePageBoundary hb;
     private CaricamentoFileBound cFileBound;
@@ -21,7 +25,6 @@ public class HomePageControl {
     private DBMSBoundary db;
     private AlertBoundary ab;
     private String tipo;
-    private PublicContentBound publicContentBound;
     private List<ContenutoEntity> contenuti;
 
     public HomePageControl(String e, HomePageBoundary boundary) {
@@ -39,8 +42,11 @@ public class HomePageControl {
         this.ab= new AlertBoundary();
 
     }
+
     public String getEmail() {
+        
         return this.email;
+
     }
 
     public void setContenuti(List<ContenutoEntity> contenuti) {
@@ -50,7 +56,6 @@ public class HomePageControl {
     public void visualizza() {
         CaricamentoFileBound cfb = new CaricamentoFileBound(this);
         this.hb.mostraPannelloCaricamentoFile(cfb);
-        
     }
 
     public void trasformaInBlob(File fileSelezionato){
@@ -116,7 +121,6 @@ public class HomePageControl {
     
     public void clickHome(Object windowContex) {
         this.createHomePageBoundary(this.email,windowContex);
-        
     }
 
     
@@ -217,6 +221,7 @@ public class HomePageControl {
     }
 
   }
+  
 
   public void salvaNuovoOrdinamento(List<ContenutoEntity> contenutiAggiornati){
     HashMap<Integer,Integer> mappaPosizioni = new HashMap<>();
@@ -268,7 +273,6 @@ public void invertiOrdineRisorse(int d, ContenutoEntity card) {
     ContenutoEntity partnerRisorsa = this.hb.getCardByIndex(targetIndex);
     if (partnerRisorsa == null) return;
     
-
     
     //Scambio dati logico sulle Entity (Puro BCE)
     int posIniziale = card.getPosizione();
@@ -284,66 +288,30 @@ public void invertiOrdineRisorse(int d, ContenutoEntity card) {
 }
 
 
-  public void cercaUtente(String query){
-    if(query == null ||query.trim().isEmpty()){
-        this.hb.pulisciRisultatiRicercaUtenti();
-        this.ab.alert("Inserisci un nome e cognome per la ricerca.");
-        return;
-    }
-    try {
-        ArrayList<StudenteEntity> risultati = this.db.cerca(query.trim(), this.email);
+  public void cercaUtente(){
 
-        if (risultati.isEmpty()) {
-            this.ab.alert("Nessun utente trovato.");
-            return;
-        }
-
-        this.hb.mostraListaStudenti(risultati);
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        this.ab.alert("Errore durante la ricerca degli utenti.");
-    }   
   }
+
+  public void createPublicContentBound(){
+
+  }
+
+  public void visualizzaUtente(){
+
+  }
+
+  public void requestPublicContent(){
+
+  }
+
+  public void caricaContenuto(){
+
+  }
+
+  public void cancellaNomeInserito(){
     
+  }
 
-    public void createPublicContentBound(StudenteEntity studente) {
-        PublicContentBound publicContentBound = new PublicContentBound(this, studente);
-
-        this.hb.mostraPublicContentBound(publicContentBound);
-
-        this.requestPublicContent(studente);
-    }
-
-    public void visualizzaStudente(StudenteEntity studente) {
-        if (studente == null) {
-            this.ab.alert("Studente non valido.");
-            return;
-        }
-
-        this.createPublicContentBound(studente);
-    }
-
-    public void requestPublicContent(StudenteEntity studente) {
-        List<ContenutoEntity> contentList = this.db.getResources(studente.getEmail());
-
-        if (contentList == null || contentList.isEmpty()) {
-            this.hb.mostraListaContenutiPubblici(contentList);
-            return;
-        }
-
-        for (ContenutoEntity contenuto : contentList) {
-            this.caricaContenuto(contenuto);
-        }
-    }
-
-    public void caricaContenuto(ContenutoEntity contenuto) {
-        this.hb.caricaContenutoPubblico(contenuto);
-    }
-
-    public void cancellaNomeInserito(){
-    
-    }
   public void visualizza(Object windowContext){
         this.hb.visualizzaContesto(windowContext);
     }
@@ -374,7 +342,9 @@ public void invertiOrdineRisorse(int d, ContenutoEntity card) {
             e.printStackTrace();   
         }
     }
-    public void getUserInfo(String email) {
+
+
+     public void getUserInfo(String email) {
         try {
             StudenteEntity studente = db.getUserInfo(email);
             if (studente != null) {
@@ -386,4 +356,5 @@ public void invertiOrdineRisorse(int d, ContenutoEntity card) {
             e.printStackTrace();
         }
     }
+
 }
