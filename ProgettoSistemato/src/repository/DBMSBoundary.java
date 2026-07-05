@@ -214,52 +214,25 @@ try (Connection conn = eseguiConnessione();
 }
 
 
-public boolean inserisciContenuto(byte[] file, String titolo, String descrizione, String tipo, String email, int posizione, boolean isPubblic) throws SQLException {
-    String query = "INSERT INTO contenuti (titolo, descrizione, tipo, file_blob, studente_email, posizione, isPubblic) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    
-    try (Connection conn = eseguiConnessione();
-         PreparedStatement stmt = conn.prepareStatement(query)) {
-         
-        stmt.setString(1, titolo);
-        stmt.setString(2, descrizione);
-        stmt.setString(3, tipo);
-        stmt.setBytes(4, file);
-        stmt.setString(5, email);
-        stmt.setInt(6, posizione);
-        stmt.setBoolean(7, isPubblic);
+public boolean inserisciContenuto(byte[] file, String titolo, String descrizione, String tipo, String email,int posizione) throws SQLException {
+        String query = "INSERT INTO contenuti (titolo, descrizione, tipo, file_blob, studente_email,posizione) VALUES (?, ?, ?, ?, ?, ?)";
         
-        int righeImpatto = stmt.executeUpdate();
-        return righeImpatto > 0;
-    }
-}
-
-public List<ContenutoEntity> getPublicResources(String email) {
-    List<ContenutoEntity> userResources = new ArrayList<>();
-    String query = "SELECT id, file_blob, titolo, descrizione, tipo, posizione FROM contenuti WHERE studente_email = ? AND isPubblic = TRUE ORDER BY posizione ASC";
-
-    try (Connection conn = eseguiConnessione();
-         PreparedStatement stmt = conn.prepareStatement(query)) {
-
-        stmt.setString(1, email);
-
-        try (ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                byte[] file = rs.getBytes("file_blob");
-                String titolo = rs.getString("titolo");
-                String descrizione = rs.getString("descrizione");
-                String tipo = rs.getString("tipo");
-                int posizione = rs.getInt("posizione");
-
-                userResources.add(new ContenutoEntity(id, file, titolo, descrizione, tipo, posizione));
-            }
+        try (Connection conn = eseguiConnessione();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+             
+            stmt.setString(1, titolo);
+            stmt.setString(2, descrizione);
+            stmt.setString(3, tipo);
+            stmt.setBytes(4, file);
+            stmt.setString(5, email);
+            stmt.setInt(6, posizione);
+            
+            
+            int righeImpatto = stmt.executeUpdate();
+            return righeImpatto > 0;
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
 
-    return userResources;
-}
 
 public List<ContenutoEntity> getResources(String email) {
         List<ContenutoEntity> userResources = new ArrayList<>();
@@ -419,45 +392,9 @@ public List<ContenutoEntity> getResources(String email) {
 
         return risultati;
     }
-public void aggiornaDescrizioneProfilo(String email, String descrizione) throws SQLException {
-    String query = "UPDATE utenti SET descrizione = ? WHERE email = ?";
 
-    try (Connection conn = eseguiConnessione();
-         PreparedStatement stmt = conn.prepareStatement(query)) {
 
-        stmt.setString(1, descrizione);
-        stmt.setString(2, email);
-
-        int righeImpatto = stmt.executeUpdate();
-
-        if (righeImpatto == 0) {
-            throw new SQLException("Nessun utente trovato con l'email specificata.");
-        }
-    }
-}
-
-public void richiediEliminazioneContenuto(int idContenuto, String emailStudente) throws SQLException {
-    this.eliminaContenuto(idContenuto, emailStudente);
-}
-
-    private void eliminaContenuto(int idContenuto, String emailStudente) throws SQLException {
-        String query = "DELETE FROM contenuti WHERE id = ? AND studente_email = ?";
-
-        try (Connection conn = eseguiConnessione();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setInt(1, idContenuto);
-            stmt.setString(2, emailStudente);
-
-            int righeImpatto = stmt.executeUpdate();
-
-            if (righeImpatto == 0) {
-                throw new SQLException("Nessun contenuto trovato oppure contenuto non appartenente all'utente.");
-            }
-        }
-    }
-
-public void salvaCorrispondenza(String email, String localLink , String extLink,String senderEmail) throws SQLException{
+    public void salvaCorrispondenza(String email, String localLink , String extLink,String senderEmail) throws SQLException{
             String query = "INSERT INTO condivisioni (email_associata, link_locale, link_esterno,email_mittente) VALUES (?, ?, ?,?)";
         
             try (Connection conn = eseguiConnessione();
@@ -480,76 +417,7 @@ public void salvaCorrispondenza(String email, String localLink , String extLink,
 
 
     }
-
-    public void modifica(int idContenuto, String emailStudente, byte[] file, String titolo, String descrizione, String tipo) throws SQLException {
-        String query;
-
-        if (file != null) {
-            query = "UPDATE contenuti SET file_blob = ?, titolo = ?, descrizione = ?, tipo = ? WHERE id = ? AND studente_email = ?";
-        } else {
-            query = "UPDATE contenuti SET titolo = ?, descrizione = ? WHERE id = ? AND studente_email = ?";
-        }
-
-        try (Connection conn = eseguiConnessione();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            if (file != null) {
-                stmt.setBytes(1, file);
-                stmt.setString(2, titolo);
-                stmt.setString(3, descrizione);
-                stmt.setString(4, tipo);
-                stmt.setInt(5, idContenuto);
-                stmt.setString(6, emailStudente);
-            } else {
-                stmt.setString(1, titolo);
-                stmt.setString(2, descrizione);
-                stmt.setInt(3, idContenuto);
-                stmt.setString(4, emailStudente);
-            }
-
-            int righeImpatto = stmt.executeUpdate();
-
-            if (righeImpatto == 0) {
-                throw new SQLException("Nessun contenuto trovato oppure contenuto non appartenente all'utente.");
-            }
-        }
-    }
-
-public boolean verifyIfEmailExists(String email) throws SQLException {
-    String query = "SELECT COUNT(*) FROM utenti WHERE email = ?";
-
-    try (Connection conn = eseguiConnessione();
-         PreparedStatement stmt = conn.prepareStatement(query)) {
-
-        stmt.setString(1, email);
-
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-        }
-    }
-
-    return false;
-}
-
-public void transmitPassword(String email, String passwordHash) throws SQLException {
-    String query = "UPDATE utenti SET password = ? WHERE email = ?";
-
-    try (Connection conn = eseguiConnessione();
-         PreparedStatement stmt = conn.prepareStatement(query)) {
-
-        stmt.setString(1, passwordHash);
-        stmt.setString(2, email);
-
-        int righeImpatto = stmt.executeUpdate();
-
-        if (righeImpatto == 0) {
-            throw new SQLException("Nessun utente trovato con l'email specificata.");
-        }
-    }
-}
-        public boolean esisteGiaCondivisione(String emailDestinatario, String linkDropbox) throws SQLException {
+public boolean esisteGiaCondivisione(String emailDestinatario, String linkDropbox) throws SQLException {
     String query = "SELECT COUNT(*) FROM condivisioni WHERE email_associata = ? AND link_esterno = ?";
     try (Connection conn = eseguiConnessione();
          PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -561,7 +429,8 @@ public void transmitPassword(String email, String passwordHash) throws SQLExcept
     }
     return false;
 }
-public String getLinkEsterno(String token) throws SQLException {
+
+public String verificaEsistenzaToken(String token) throws SQLException {
     String query = "SELECT link_esterno FROM condivisioni WHERE link_locale LIKE ?";
     try (Connection conn = eseguiConnessione();
          PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -572,6 +441,7 @@ public String getLinkEsterno(String token) throws SQLException {
     }
     return null;
 }
+
 public void registraVisualizzazione(String token) throws SQLException {
     String query = "UPDATE condivisioni SET visualized = 1 WHERE link_locale LIKE ?";
     try (Connection conn = eseguiConnessione();
@@ -580,4 +450,6 @@ public void registraVisualizzazione(String token) throws SQLException {
         stmt.executeUpdate();
     }
 }
+
+
 } 
