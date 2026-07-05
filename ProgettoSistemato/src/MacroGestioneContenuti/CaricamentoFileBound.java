@@ -1,4 +1,4 @@
-package src.MacroGestioneProfilo;
+package src.MacroGestioneContenuti;
 
 import javafx.geometry.Insets;
 import javafx.scene.Scene;

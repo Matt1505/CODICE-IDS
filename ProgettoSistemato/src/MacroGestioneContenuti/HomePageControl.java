@@ -1,4 +1,4 @@
-package src.MacroGestioneProfilo;
+package src.MacroGestioneContenuti;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,7 +16,9 @@ import src.GeneralClasses.Entities.StudenteEntity;
 
 import java.util.HashMap;
 
-import src.gestioneCredenziali.UpdatePasswordBound;
+import src.MacroGestioneProfilo.GestioneProfiloBound;
+import src.MacroGestioneCredenziali.LoginBound;
+import src.MacroGestioneCredenziali.UpdatePasswordBound;
 
 public class HomePageControl {
     private HomePageBoundary hb;
@@ -365,7 +367,8 @@ public void cancellaNomeInserito() {
         }
     }
     public void logout(Object windowContext) {
-        src.gestioneCredenziali.LoginBound loginBound = new src.gestioneCredenziali.LoginBound();
+        LoginBound loginBound = new LoginBound();
+loginBound.visualizza(windowContext);
         loginBound.visualizza(windowContext);
     }
     public String getDescrizioneProfilo() {

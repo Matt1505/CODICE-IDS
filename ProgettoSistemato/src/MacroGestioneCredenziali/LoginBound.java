@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 import javafx.application.Application;
 import javafx.application.Platform;

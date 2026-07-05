@@ -3,7 +3,7 @@
 # 1. Verifica se il file è stato passato come argomento
 if [ -z "$1" ] || [ ! -f "$1" ]; then
     echo "Errore: Specifica un percorso di un file .java valido."
-    echo "Uso: $0 src/gestioneCredenziali/LoginBoundary.java"
+    echo "Uso: $0 src/MacroGestioneCredenziali/LoginBoundary.java"
     exit 1
 fi
 
@@ -34,7 +34,7 @@ if [ $COMPILATION_RESULT -ne 0 ]; then
     exit 1
 fi
 
-# 3. Estrazione del nome della classe con il suo package (es. src.gestioneCredenziali.LoginBoundary)
+# 3. Estrazione del nome della classe con il suo package (es. src.MacroGestioneCredenziali.LoginBoundary)
 # Converte i separatori di percorso "/" in punti "." per Java
 CLASS_NAME=$(echo "$1" | sed 's/\.java//' | sed 's/\//\./g')
 

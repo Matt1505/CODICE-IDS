@@ -1,4 +1,4 @@
-package src.MacroGestioneProfilo;
+package src.MacroGestioneContenuti;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;

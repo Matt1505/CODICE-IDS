@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -8,7 +8,7 @@ import java.util.Random;
 
 import src.GeneralClasses.AlertBoundary;
 import src.GeneralClasses.Entities.OTPEntity;
-import src.MacroGestioneProfilo.HomePageControl;
+import src.MacroGestioneContenuti.HomePageControl;
 import src.externalServices.mailServerBound;
 import src.repository.DBMSBoundary;
 

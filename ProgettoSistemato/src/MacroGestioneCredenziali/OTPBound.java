@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 import javax.swing.border.StrokeBorder;
 

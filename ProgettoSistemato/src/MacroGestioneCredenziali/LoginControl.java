@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 
 import java.math.BigInteger;
@@ -11,8 +11,8 @@ import src.repository.DBMSBoundary;
 import src.externalServices.mailServerBound;
 import src.GeneralClasses.AlertBoundary;
 import src.GeneralClasses.Entities.OTPEntity;
-import src.MacroGestioneProfilo.HomePageBoundary;
-import src.MacroGestioneProfilo.HomePageControl;
+import src.MacroGestioneContenuti.HomePageBoundary;
+import src.MacroGestioneContenuti.HomePageControl;
 import javafx.application.Platform;
 
 public class LoginControl {

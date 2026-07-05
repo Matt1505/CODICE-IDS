@@ -3,7 +3,7 @@ package src.MacroGestioneCondivisioni;
 import java.util.List;
 
 import src.GeneralClasses.Entities.ContenutoEntity;
-import src.MacroGestioneProfilo.HomePageBoundary;
+import src.MacroGestioneContenuti.HomePageBoundary;
 
 public class SendFileControl {
 

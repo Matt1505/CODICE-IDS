@@ -1,4 +1,4 @@
-package src.MacroGestioneProfilo;
+package src.MacroGestioneContenuti;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +24,7 @@ import javafx.scene.control.CheckBox;
 
 import src.GeneralClasses.Entities.StudenteEntity;
 import src.MacroGestioneCondivisioni.SendFileControl;
+import src.MacroGestioneProfilo.GestioneProfiloBound;
 
 public class HomePageBoundary {
     private String email;

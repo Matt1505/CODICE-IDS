@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;

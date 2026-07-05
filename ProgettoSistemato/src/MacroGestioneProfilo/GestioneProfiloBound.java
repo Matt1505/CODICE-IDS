@@ -15,6 +15,8 @@ import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import src.MacroGestioneContenuti.HomePageControl;
+
 public class GestioneProfiloBound {
     private HomePageControl controller;
 
