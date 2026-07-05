@@ -10,8 +10,8 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import src.GeneralClasses.Entities.ContenutoEntity;
 import src.GeneralClasses.Entities.StudenteEntity;
-import src.MacroGestioneProfilo.HomePageBoundary;
-import src.MacroGestioneProfilo.HomePageControl;
+import src.MacroGestioneContenuti.HomePageBoundary;
+import src.MacroGestioneContenuti.HomePageControl;
 
 public class shareContentBound extends Application {
 
@@ -178,7 +178,7 @@ public class shareContentBound extends Application {
 
     public void inviaDestinatari(){
         sc.setDestinatari(this.txtDestinatari.getText());
-        sc.mandaSelezioneContenuti();
+        sc.mandaSelezioneContenuti((Stage)this.rootContainer.getScene().getWindow());
     }
 
     

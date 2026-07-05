@@ -6,19 +6,25 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import src.GeneralClasses.AlertBoundary;
+import src.GeneralClasses.Entities.CondivisioneEntity;
 import src.GeneralClasses.Entities.ContenutoEntity;
 import src.GeneralClasses.Entities.StudenteEntity;
-import src.MacroGestioneProfilo.HomePageBoundary;
+import src.MacroGestioneContenuti.HomePageBoundary;
 import src.repository.DBMSBoundary;
 import src.repository.cloudServiceBound;
 import src.externalServices.ExternalSharingBoundary;
 import src.externalServices.mailServerBound;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Timestamp;
 import java.util.UUID;
+
+import com.sun.net.httpserver.HttpExchange;
 
 public class SendFileControl {
 
@@ -26,10 +32,13 @@ public class SendFileControl {
     private StudenteEntity se;
     private DBMSBoundary db;
     private List<ContenutoEntity> content;
+    private List<CondivisioneEntity> condivisioniPassate;
     private List<String> destinatariList;
     private mailServerBound mb;
     private cloudServiceBound cb = new cloudServiceBound();
     private ExternalSharingBoundary eb = new ExternalSharingBoundary(this);
+    private AlertBoundary ab= new AlertBoundary();
+    private condivisioniPassateBound cpastBound;
 
     // Unifichiamo la porta su 8081 per evitare conflitti con la 8080
     private static final String PORTA_SERVER = "8081";
@@ -38,6 +47,7 @@ public class SendFileControl {
         this.hb = hb;
         this.db = new DBMSBoundary();
         this.mb = new mailServerBound();
+        this.cpastBound= new condivisioniPassateBound(this);
         try {
             eb.avviaServer();
         } catch (Exception e) {
@@ -100,7 +110,12 @@ public class SendFileControl {
         this.disabilitaSelezione();
     }
 
-    public void mandaSelezioneContenuti() {
+    public boolean checkCondivisioneUnivoca(String s, String dest) throws SQLException{
+        return db.esisteGiaCondivisione(dest, s);
+
+    }
+
+    public void mandaSelezioneContenuti(Object window) {
         String extlink = cb.caricaSelezioneContenuti(this.content);
         if (extlink == null) {
             System.err.println("Errore: Caricamento su Dropbox fallito.");
@@ -110,7 +125,7 @@ public class SendFileControl {
         for (String dest : destinatariList) {
             try {
                 // 1. Controllo preventivo anti-duplicato in Java
-                if (db.esisteGiaCondivisione(dest, extlink)) {
+                if (checkCondivisioneUnivoca(dest, extlink)) {
                     System.out.println("[JAVA CONTROL] Mail già inviata in precedenza a: " + dest + ". Salto.");
                     continue;
                 }
@@ -123,12 +138,13 @@ public class SendFileControl {
                 this.mandaCorrispondenza(dest, linkLocale, extlink);
                 this.mandaLinkInternoViaMail(dest, linkLocale);
                 System.out.println("Email di condivisione inviata con successo a: " + dest);
-
+                
             } catch (SQLException e) {
                 System.err.println("Errore durante la gestione della condivisione per: " + dest);
                 e.printStackTrace();
             }
         }
+        this.sendHome(se.getEmail(),window );
     }
 
     public String generaToken(String email) {
@@ -167,28 +183,86 @@ public class SendFileControl {
         }
     }
 
+
+
+
     public void mandaLinkInternoViaMail(String dest, String link) {
         mb.mailCondivisione(dest, link);
     }
 
-    public String gestisciVisualizzazione(String token) {
+    public void verificaEsistenzaCondivisione(Object exchange,String token) {
         System.out.println("[CONTROL] Richiesto tracciamento per il token: " + token);
         try {
             // Cerchiamo nel DB usando il token parziale (estratto con LIKE %token=)
-            String linkEsterno = db.getLinkEsterno(token);
+            String linkEsterno = db.verificaEsistenzaToken(token);
             System.out.println("[CONTROL] Link esterno trovato nel DB: " + linkEsterno);
-            
-            if (linkEsterno == null) {
-                return null; 
-            }
+            try{
+             if (linkEsterno == null) {
+                ab.alert("Link non valido o non più disponibile");
+                eb.MandaErrore(exchange);
+                
+            }else{
 
-            // Aggiorna lo stato nel DB
-            db.registraVisualizzazione(token);
-            return linkEsterno;
+                this.salvaDataOra(token);
+                eb.Reindirizza(exchange, linkEsterno);
+
+            }
+            }catch(IOException e){
+              e.printStackTrace();
+
+            }
+           
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
+            return;
         }
     }
+
+
+    public void salvaDataOra(String token){
+        // Prendi il timestamp in millisecondi
+        long ts = System.currentTimeMillis();
+        // Convertilo in un oggetto java.sql.Timestamp valido per MySQL
+        java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(ts);
+        
+        // Passa l'oggetto SQL corretto al metodo successivo
+        this.modificaRiscontroVisualizzazione(token, sqlTimestamp);
+    }
+
+   public void modificaRiscontroVisualizzazione(String token, java.sql.Timestamp ts){
+        // Aggiornalo nel db
+        try {
+             db.registraVisualizzazione(token, ts);
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void recuperaCondivisoni(String email,Object window){
+      
+        try{
+             this.condivisioniPassate=this.db.richiediCondivisioni(email);
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+       if(this.condivisioniPassate==null){
+        ab.alert("Non hai effettuato ancora nessuna condivisione!");
+
+       }else{
+        System.err.println("CONDIVISIONI:"+this.condivisioniPassate);
+        this.caricaCondivisioni(this.condivisioniPassate, window);
+
+       }
+    }
+
+
+    public void caricaCondivisioni(List<CondivisioneEntity> cpast, Object window){
+        cpastBound.visualizza(window, cpast);
+    }
+    
+
+
+
+
 }
