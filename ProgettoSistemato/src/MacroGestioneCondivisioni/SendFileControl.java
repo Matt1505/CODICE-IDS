@@ -6,9 +6,10 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import src.GeneralClasses.AlertBoundary;
 import src.GeneralClasses.Entities.ContenutoEntity;
 import src.GeneralClasses.Entities.StudenteEntity;
-import src.MacroGestioneContenuti.HomePageBoundary;
+import src.MacroGestioneProfilo.HomePageBoundary;
 import src.repository.DBMSBoundary;
 import src.repository.cloudServiceBound;
 import src.externalServices.ExternalSharingBoundary;
@@ -20,6 +21,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
+import com.sun.net.httpserver.HttpExchange;
+
 public class SendFileControl {
 
     private HomePageBoundary hb;
@@ -30,6 +33,7 @@ public class SendFileControl {
     private mailServerBound mb;
     private cloudServiceBound cb = new cloudServiceBound();
     private ExternalSharingBoundary eb = new ExternalSharingBoundary(this);
+    private AlertBoundary ab= new AlertBoundary();
 
     // Unifichiamo la porta su 8081 per evitare conflitti con la 8080
     private static final String PORTA_SERVER = "8081";
@@ -167,28 +171,34 @@ public class SendFileControl {
         }
     }
 
+
+
+
     public void mandaLinkInternoViaMail(String dest, String link) {
         mb.mailCondivisione(dest, link);
     }
 
-    public String gestisciVisualizzazione(String token) {
+    public void verificaEsistenzaCondivisione(Object exchange,String token) {
         System.out.println("[CONTROL] Richiesto tracciamento per il token: " + token);
         try {
             // Cerchiamo nel DB usando il token parziale (estratto con LIKE %token=)
-            String linkEsterno = db.getLinkEsterno(token);
+            String linkEsterno = db.verificaEsistenzaToken(token);
             System.out.println("[CONTROL] Link esterno trovato nel DB: " + linkEsterno);
             
             if (linkEsterno == null) {
-                return null; 
-            }
+                ab.alert("Link non valido o non più disponibile");
+                eb.MandaErrore(exchange);
+                
+            }else{
 
-            // Aggiorna lo stato nel DB
-            db.registraVisualizzazione(token);
-            return linkEsterno;
+                db.registraVisualizzazione(token);
+                eb.Reindirizza(exchange, linkEsterno);
+
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
+            return;
         }
     }
 }

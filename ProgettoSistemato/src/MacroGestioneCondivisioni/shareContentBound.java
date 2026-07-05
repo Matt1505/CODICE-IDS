@@ -10,8 +10,8 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import src.GeneralClasses.Entities.ContenutoEntity;
 import src.GeneralClasses.Entities.StudenteEntity;
-import src.MacroGestioneContenuti.HomePageBoundary;
-import src.MacroGestioneContenuti.HomePageControl;
+import src.MacroGestioneProfilo.HomePageBoundary;
+import src.MacroGestioneProfilo.HomePageControl;
 
 public class shareContentBound extends Application {
 
