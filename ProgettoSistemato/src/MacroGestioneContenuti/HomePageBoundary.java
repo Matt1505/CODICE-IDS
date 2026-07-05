@@ -1,9 +1,10 @@
-package src.MacroGestioneProfilo;
+package src.MacroGestioneContenuti;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 import javafx.scene.layout.*;
@@ -23,6 +24,7 @@ import javafx.scene.control.CheckBox;
 
 import src.GeneralClasses.Entities.StudenteEntity;
 import src.MacroGestioneCondivisioni.SendFileControl;
+import src.MacroGestioneProfilo.GestioneProfiloBound;
 
 public class HomePageBoundary {
     private String email;
@@ -32,7 +34,7 @@ public class HomePageBoundary {
     private Button btnCaricaFile;
     private Button btnCondividiContenuti;
     private Button btnRiordinaContenuti;
-    private Button btnGestioneProfilo;
+    
     private Button btnModificaProfilo;
     private Button btnSalva;
     private Button btnInvia;
@@ -40,6 +42,7 @@ public class HomePageBoundary {
     private VBox risultatiRicercaUtentiContainer;
     private SendFileControl sendFileControl;
     private PublicContentBound publicContentBound;
+    private Button btnVisualizzaCondivisioniPassate;
       
     public HomePageBoundary(String email) {
         this.email = email;
@@ -74,7 +77,7 @@ public class HomePageBoundary {
         // Immagine di profilo arrotondata
         ImageView profileImageView = new ImageView();
         try {
-profileImageView.setImage(new Image("file:src/Assets/defaultProfilePicture.jpeg"));
+            profileImageView.setImage(new Image("file:src/Assets/defaultProfilePicture.jpeg"));
         } catch (Exception e) {
             e.printStackTrace(); 
         }
@@ -139,11 +142,7 @@ profileImageView.setImage(new Image("file:src/Assets/defaultProfilePicture.jpeg"
         this.btnRiordinaContenuti.setOnMouseExited(e -> this.btnRiordinaContenuti.setStyle("-fx-background-color: transparent; -fx-border-color: #12305C; -fx-border-radius: 20; -fx-padding: 8 16; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-text-fill: #12305C; -fx-font-size: 13px;"));
         this.btnRiordinaContenuti.setOnAction(event -> attivaRiordinamentoContenuti());
 
-        this.btnGestioneProfilo = new Button("Gestione Profilo");
-        this.btnGestioneProfilo.setStyle(navBtnStyle);
-        this.btnGestioneProfilo.setOnMouseEntered(e -> this.btnGestioneProfilo.setStyle(navBtnHover));
-        this.btnGestioneProfilo.setOnMouseExited(e -> this.btnGestioneProfilo.setStyle(navBtnStyle));
-        this.btnGestioneProfilo.setOnAction(event -> clickGestioneProfilo());
+        
         
         this.btnInvia = new Button("Invia");
         this.btnInvia.setStyle("-fx-background-color: linear-gradient(to right, #28A745, #218838); -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand; -fx-font-size: 13px; -fx-effect: dropshadow(three-pass-box, rgba(40,167,69,0.35), 8, 0, 0, 3);");
@@ -159,7 +158,6 @@ profileImageView.setImage(new Image("file:src/Assets/defaultProfilePicture.jpeg"
         this.txtCercaUtenti.setPrefWidth(200);
         this.txtCercaUtenti.setStyle("-fx-background-color: #F4F7FB; -fx-border-color: #C4D1DF; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 8 12; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;");
 
-        // Container risultati ricerca utenti
         this.risultatiRicercaUtentiContainer = new VBox(8);
         this.risultatiRicercaUtentiContainer.setPadding(new Insets(10, 35, 10, 35));
         this.risultatiRicercaUtentiContainer.setStyle("-fx-background-color: transparent;");
@@ -178,33 +176,8 @@ profileImageView.setImage(new Image("file:src/Assets/defaultProfilePicture.jpeg"
         this.btnModificaProfilo.setOnMouseExited(e -> this.btnModificaProfilo.setStyle(navBtnStyle));
         this.btnModificaProfilo.setOnAction(event -> modificaFoto());
         
-        topBar.getChildren().addAll(this.btnCaricaFile, this.btnCondividiContenuti, this.btnInvia, this.btnRiordinaContenuti, this.btnGestioneProfilo, this.btnModificaProfilo, this.btnSalva, this.txtCercaUtenti);
+        topBar.getChildren().addAll(this.btnCaricaFile, this.btnCondividiContenuti, this.btnInvia, this.btnRiordinaContenuti, this.btnModificaProfilo, this.btnSalva, this.txtCercaUtenti);
         header.getChildren().addAll(topHeaderRow, topBar);
-
-        // --- NUOVA SEZIONE: DESCRIZIONE PROFILO UTENTE (SOPRA AI CONTENUTI) ---
-        VBox bioSection = new VBox(10);
-        bioSection.setPadding(new Insets(25, 35, 10, 35));
-        bioSection.setStyle("-fx-background-color: transparent;");
-        
-        HBox bioTitleBar = new HBox(15);
-        bioTitleBar.setAlignment(Pos.CENTER_LEFT);
-        
-        Label lblBioTitle = new Label("Descrizione del Profilo / Biografia");
-        lblBioTitle.setStyle("-fx-font-family: 'Georgia'; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #12305C;");
-        
-        Button btnModificaBio = new Button("Modifica Descrizione");
-        btnModificaBio.setStyle("-fx-background-color: transparent; -fx-border-color: #C4D1DF; -fx-border-radius: 12; -fx-text-fill: #556E8A; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 12;");
-        btnModificaBio.setOnMouseEntered(e -> btnModificaBio.setStyle("-fx-background-color: #F4F7FB; -fx-border-color: #12305C; -fx-border-radius: 12; -fx-text-fill: #12305C; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 12;"));
-        btnModificaBio.setOnMouseExited(e -> btnModificaBio.setStyle("-fx-background-color: transparent; -fx-border-color: #C4D1DF; -fx-border-radius: 12; -fx-text-fill: #556E8A; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 4 12;"));
-        btnModificaBio.setOnAction(event -> modificaFoto()); 
-
-        bioTitleBar.getChildren().addAll(lblBioTitle, btnModificaBio);
-        
-        Label lblBioContent = new Label("Nessuna descrizione inserita. Modifica il tuo profilo per aggiungere una breve biografia o per presentare le tue opere.");
-        lblBioContent.setWrapText(true);
-        lblBioContent.setStyle("-fx-font-family: 'Segoe UI'; -fx-font-size: 14px; -fx-text-fill: #556E8A; -fx-line-spacing: 4px;");
-        
-        bioSection.getChildren().addAll(bioTitleBar, lblBioContent);
 
         // --- CONTENITORE RISORSE ---
         this.resourcesContainer = new FlowPane();
@@ -217,17 +190,22 @@ profileImageView.setImage(new Image("file:src/Assets/defaultProfilePicture.jpeg"
         // VBox interno allo ScrollPane che impila la sezione Descrizione sopra la Galleria di Contenuti
         VBox scrollContentWrapper = new VBox(0);
         scrollContentWrapper.setStyle("-fx-background-color: transparent;");
-        scrollContentWrapper.getChildren().addAll(bioSection, this.risultatiRicercaUtentiContainer, this.resourcesContainer);
+        scrollContentWrapper.getChildren().addAll(this.risultatiRicercaUtentiContainer, this.resourcesContainer);
         
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(scrollContentWrapper);
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;");
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        
+        this.btnVisualizzaCondivisioniPassate = new Button("Visualizza Condivisioni Passate");
+        this.btnVisualizzaCondivisioniPassate.setStyle(navBtnStyle);
+        this.btnVisualizzaCondivisioniPassate.setOnMouseEntered(e -> this.btnVisualizzaCondivisioniPassate.setStyle(navBtnHover));
+        this.btnVisualizzaCondivisioniPassate.setOnMouseExited(e -> this.btnVisualizzaCondivisioniPassate.setStyle(navBtnStyle));
+        this.btnVisualizzaCondivisioniPassate.setOnAction(event -> caricaPaginaCondivisioniPassate());
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
         this.rootContainer.getChildren().addAll(header, scrollPane);
-    }
+        topBar.getChildren().add(this.btnVisualizzaCondivisioniPassate);
+    }   
 
     public void visualizza() { 
         this.rootContainer.setVisible(true);
@@ -244,38 +222,40 @@ profileImageView.setImage(new Image("file:src/Assets/defaultProfilePicture.jpeg"
         currenteStage.setScene(reindirizzamentoScene);
     }
 
-public void visualizzaContesto(Object windowContext){
-    if(windowContext instanceof Stage){
-        Stage stage = (Stage) windowContext;
-        javafx.application.Platform.runLater(() -> {
-            
-            // 1. Controlla se il contenitore è già agganciato a una scena esistente
-            if (this.rootContainer.getScene() != null) {
-                // Sgancia il rootContainer impostando un rimpiazzo vuoto sulla sua vecchia scena
-                this.rootContainer.getScene().setRoot(new javafx.scene.layout.Pane());
-            }
-            
-            // 2. Controlla se lo Stage corrente ha già una scena attiva
-            if (stage.getScene() != null) {
-                // Sostituisce il vecchio contenuto dello stage con il root della Home liberato
-                stage.getScene().setRoot(this.rootContainer);
-            } else {
-                // Se lo stage non ha alcuna scena (es. primo avvio), ne crea una nuova
-                Scene homeScene = new Scene(this.rootContainer, 900, 700);
-                stage.setScene(homeScene);
-            }
-            
-            stage.setTitle("Piattaforma AFAM - HOME");
-            stage.show();
-        });
-    }
-}
+  public void visualizzaContesto(Object windowContext){
+        if(windowContext instanceof Stage){
+            Stage stage = (Stage) windowContext;
+            javafx.application.Platform.runLater(() -> {
+                // 1. Se il rootContainer è ancora agganciato a una vecchia scena, lo liberiamo
+                if (this.rootContainer.getScene() != null) {
+                    this.rootContainer.getScene().setRoot(new javafx.scene.layout.Pane());
+                }
 
-    public void mostraPannelloCaricamentoFoto(CaricaFotoProfiloBound cfpb){
+                // 2. Controlliamo se lo stage ha già una scena attiva da poter riutilizzare
+                Scene currentScene = stage.getScene();
+                if (currentScene != null) {
+                    currentScene.setRoot(this.rootContainer);
+                } else {
+                    // Fallback: creiamo la scena solo se lo stage ne è privo
+                    Scene homeScene = new Scene(this.rootContainer, 900, 700);
+                    stage.setScene(homeScene);
+                }
+                
+                stage.setTitle("Piattaforma AFAM - HOME");
+                stage.show();
+            });
+        }
+    }
+
+    public void mostraPannelloGestioneProfilo(GestioneProfiloBound gestioneProfiloBound){
         Stage currenteStage = (Stage) this.rootContainer.getScene().getWindow();
-        VBox layout = cfpb.visualizza();
+        VBox layout = gestioneProfiloBound.visualizza();
         Scene reindirizzamentoScene = new Scene(layout, 400, 300);
         currenteStage.setScene(reindirizzamentoScene);
+    }
+
+    public void mostraPannelloCaricamentoFoto(GestioneProfiloBound gestioneProfiloBound){
+        this.mostraPannelloGestioneProfilo(gestioneProfiloBound);
     }
 
     public int getNumberOfCards(){
@@ -293,14 +273,13 @@ public void visualizzaContesto(Object windowContext){
     public void cercaUtenti(String query) {
         this.ricercaUtente(query);
     }
-    public void clickGestioneProfilo() {}
+
+    public void sendToGestioneProfilo() {
+        this.hc.createGestioneProfiloBound();
+    }
 
     public void modificaFoto() {
-    
-    // Delega l'azione al controller
-    this.hc.createCaricaFotoProfiloBound();
-
-
+        this.hc.createGestioneProfiloBound();
     }
 
     public void mostraRisorsa() { 
@@ -311,37 +290,28 @@ public void visualizzaContesto(Object windowContext){
     }
 
     public void setUserInfo(StudenteEntity studente) {
-        if (studente == null) return;
-        try {
-            VBox header = (VBox) this.rootContainer.getChildren().get(0);
-            HBox topHeaderRow = (HBox) header.getChildren().get(0);
-            VBox profileVBox = (VBox) topHeaderRow.getChildren().get(2);
-            HBox profileContainer = (HBox) profileVBox.getChildren().get(0);
-            Label lblNomeCognome = (Label) profileVBox.getChildren().get(1);
-            ImageView profileImageView = (ImageView) profileContainer.getChildren().get(1);
+    if (studente == null) return;
 
-            lblNomeCognome.setText(studente.getNome() + " " + studente.getCognome());
+    try {
+        VBox header = (VBox) this.rootContainer.getChildren().get(0);
+        HBox topHeaderRow = (HBox) header.getChildren().get(0);
+        VBox profileVBox = (VBox) topHeaderRow.getChildren().get(2);
+        HBox profileContainer = (HBox) profileVBox.getChildren().get(0);
+        Label lblNomeCognome = (Label) profileVBox.getChildren().get(1);
+        ImageView profileImageView = (ImageView) profileContainer.getChildren().get(1);
 
-            if (studente.getFotoProfilo() != null && studente.getFotoProfilo().length > 0) {
-                ByteArrayInputStream bis = new ByteArrayInputStream(studente.getFotoProfilo());
-                profileImageView.setImage(new Image(bis));
-            }
+        lblNomeCognome.setText(studente.getNome() + " " + studente.getCognome());
 
-            ScrollPane scrollPane = (ScrollPane) this.rootContainer.getChildren().get(1);
-            VBox scrollContentWrapper = (VBox) scrollPane.getContent();
-            VBox bioSection = (VBox) scrollContentWrapper.getChildren().get(0);
-            Label lblBioContent = (Label) bioSection.getChildren().get(1);
-
-            if (studente.getDescrizione() != null && !studente.getDescrizione().trim().isEmpty()) {
-                lblBioContent.setText(studente.getDescrizione());
-            } else {
-                lblBioContent.setText("Nessuna descrizione inserita. Modifica il tuo profilo per aggiungere una breve biografia o per presentare le tue opere.");
-            }
-        } catch (Exception e) {
-            System.err.println("Errore durante l'aggiornamento dei dati utente nell'interfaccia:");
-            e.printStackTrace();
+        if (studente.getFotoProfilo() != null && studente.getFotoProfilo().length > 0) {
+            ByteArrayInputStream bis = new ByteArrayInputStream(studente.getFotoProfilo());
+            profileImageView.setImage(new Image(bis));
         }
+
+    } catch (Exception e) {
+        System.err.println("Errore durante l'aggiornamento dei dati utente nell'interfaccia:");
+        e.printStackTrace();
     }
+}
 
     public void caricaDatiRisorsa(ContenutoEntity risorsa) {
         if (this.resourcesContainer.getChildren().isEmpty()) return;
@@ -388,7 +358,7 @@ public void visualizzaContesto(Object windowContext){
             previewArea.getChildren().add(icon);
         }
 
-        previewArea.setOnMouseClicked(e -> this.hc.apriDocumento(risorsa));
+        previewArea.setOnMouseClicked(e -> this.apriDocumento(risorsa));
         previewArea.setOnMouseEntered(e -> previewArea.setOpacity(0.85));
         previewArea.setOnMouseExited(e -> previewArea.setOpacity(1.0));
 
@@ -423,14 +393,13 @@ public void visualizzaContesto(Object windowContext){
         btnFrecciaSinistra.setDisable(true);
         btnFrecciaSinistra.setVisible(false); 
         btnFrecciaSinistra.setManaged(false); 
-        btnFrecciaSinistra.setOnAction(e -> this.hc.invertiOrdineRisorse(1,(ContenutoEntity) card.getUserData()));
-
+        btnFrecciaSinistra.setOnAction(e -> this.invertiOrdineRisorse(1,(ContenutoEntity) card.getUserData()));
         Button btnFrecciaDestra = new Button("→");
         btnFrecciaDestra.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #C4D1DF; -fx-text-fill: #12305C; -fx-font-weight: bold; -fx-cursor: hand; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 5 15;");
         btnFrecciaDestra.setDisable(true);
         btnFrecciaDestra.setVisible(false); 
         btnFrecciaDestra.setManaged(false); 
-        btnFrecciaDestra.setOnAction(e -> this.hc.invertiOrdineRisorse(2, (ContenutoEntity) card.getUserData()));
+        btnFrecciaDestra.setOnAction(e -> this.invertiOrdineRisorse(2, (ContenutoEntity) card.getUserData()));
         
         actionBox.getChildren().addAll(btnFrecciaSinistra, btnFrecciaDestra);
         
@@ -438,6 +407,12 @@ public void visualizzaContesto(Object windowContext){
         card.getChildren().addAll(previewArea, infoArea);
     }
 
+    public void apriDocumento(ContenutoEntity risorsa){
+        this.hc.apriDocumento(risorsa,(Stage)rootContainer.getScene().getWindow());
+    }
+    public void invertiOrdineRisorse(int pos,ContenutoEntity e){
+            this.hc.invertiOrdineRisorse(pos, e);
+    }
     public void associaBottoneModifica() {
         if (this.resourcesContainer.getChildren().isEmpty()) return;
         VBox card = (VBox) this.resourcesContainer.getChildren().get(this.resourcesContainer.getChildren().size() - 1);
@@ -449,6 +424,7 @@ public void visualizzaContesto(Object windowContext){
         btnModifica.setOnMouseEntered(e -> btnModifica.setStyle("-fx-background-color: #F4F7FB; -fx-text-fill: #12305C; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 6;"));
         btnModifica.setOnMouseExited(e -> btnModifica.setStyle("-fx-background-color: transparent; -fx-text-fill: #12305C; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold;"));
         actionBox.getChildren().add(btnModifica);
+        btnModifica.setOnAction(e -> sendToModifica((ContenutoEntity) card.getUserData()));
     }
 
     public void associaBottoneRimozione() {
@@ -461,6 +437,7 @@ public void visualizzaContesto(Object windowContext){
         btnRimozione.setStyle("-fx-background-color: transparent; -fx-text-fill: #DC3545; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold;");
         btnRimozione.setOnMouseEntered(e -> btnRimozione.setStyle("-fx-background-color: #F8D7DA; -fx-text-fill: #DC3545; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 6;"));
         btnRimozione.setOnMouseExited(e -> btnRimozione.setStyle("-fx-background-color: transparent; -fx-text-fill: #DC3545; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold;"));
+        btnRimozione.setOnAction(e -> avviaEliminazioneContenuto((ContenutoEntity) card.getUserData())); 
         actionBox.getChildren().add(btnRimozione);
     }
 
@@ -587,8 +564,6 @@ public void visualizzaContesto(Object windowContext){
         sendFileControl.abilitaSelezione();
     }
 
-    
-
     public void inviaSelezione(){
         this.sendFileControl.createResumePageBound(this.getSelectedContent(), this.rootContainer.getScene().getWindow(),this.email);
     }
@@ -610,31 +585,9 @@ public void visualizzaContesto(Object windowContext){
         }
     }
 
-       public void disabilitaContentCheckBox(int i){
-        if (i < 0 || i >= this.resourcesContainer.getChildren().size()) return;
-        
-        VBox card = (VBox) this.resourcesContainer.getChildren().get(i);
-        StackPane previewArea = (StackPane) card.getChildren().get(0);
-        
-        for (javafx.scene.Node node : previewArea.getChildren()) {
-            if (node instanceof CheckBox) {
-                CheckBox chkSeleziona = (CheckBox) node;
-                chkSeleziona.setDisable(true);
-                chkSeleziona.setVisible(false);
-                chkSeleziona.setManaged(true);
-                break; 
-            }
-        }
-    }
-
-
     public void enableSendButton(){
         this.btnInvia.setVisible(true);
         this.btnInvia.setDisable(false);
-    }
-    public void disableSendButton(){
-        this.btnInvia.setVisible(false);
-        this.btnInvia.setDisable(true);
     }
 
     public List<ContenutoEntity> getSelectedContent() {
@@ -670,7 +623,6 @@ public void visualizzaContesto(Object windowContext){
     
     return selezionati;
     }
-
     public void pulisciRisultatiRicercaUtenti() {
         if (this.risultatiRicercaUtentiContainer != null) {
             this.risultatiRicercaUtentiContainer.getChildren().clear();
@@ -755,5 +707,39 @@ public void visualizzaContesto(Object windowContext){
             this.publicContentBound.caricaContenuto(contenuto);
         }
     }
+    public void avviaEliminazioneContenuto(ContenutoEntity contenuto) {
+        this.hc.avviaEliminazioneContenuto(contenuto, this.rootContainer.getScene().getWindow());
+    }
+    
 
+    public void sendToModifica(ContenutoEntity contenuto) {
+    this.hc.sendToModifica(contenuto,this.rootContainer);
+}
+
+public void disableSendButton(){
+        this.btnInvia.setVisible(false);
+        this.btnInvia.setDisable(true);
+    }
+    public void disabilitaContentCheckBox(int i){
+        if (i < 0 || i >= this.resourcesContainer.getChildren().size()) return;
+        
+        VBox card = (VBox) this.resourcesContainer.getChildren().get(i);
+        StackPane previewArea = (StackPane) card.getChildren().get(0);
+        
+        for (javafx.scene.Node node : previewArea.getChildren()) {
+            if (node instanceof CheckBox) {
+                CheckBox chkSeleziona = (CheckBox) node;
+                chkSeleziona.setDisable(true);
+                chkSeleziona.setVisible(false);
+                chkSeleziona.setManaged(true);
+                break; 
+            }
+        }
+    }
+
+    public void caricaPaginaCondivisioniPassate() {
+        if (this.rootContainer.getScene() != null) {
+            this.sendFileControl.recuperaCondivisoni(this.email, this.rootContainer.getScene().getWindow());
+        }
+    }
 }
