@@ -9,14 +9,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import src.repository.DBMSBoundary;
 import src.GeneralClasses.AlertBoundary;
 import src.GeneralClasses.Entities.ContenutoEntity;
 import src.GeneralClasses.Entities.StudenteEntity;
+import src.repository.DBMSBoundary;
 
 import java.util.HashMap;
-
-import src.gestioneCredenziali.UpdatePasswordBound;
 
 public class HomePageControl {
     private HomePageBoundary hb;
@@ -73,36 +71,25 @@ public class HomePageControl {
     }
 
         
-        public void salvaContenuto(String titolo, String descrizione, boolean pubblico, Object windowC) {
-    if (this.fileBlob == null) {
-        this.ab.alert("Errore: Seleziona prima un file d'arte!");
-        return;
+        public void salvaContenuto(String titolo, String descrizione,Object windowC) {
+        if (this.fileBlob == null) {
+            this.ab.alert("Errore: Seleziona prima un file d'arte!");
+            return;
+        }
+        try {
+            int maxPosizione = this.getMaxPosizione()+1;
+            this.db.inserisciContenuto(this.fileBlob, titolo, descrizione, this.tipo, this.email,maxPosizione);
+            this.ab.alert("Contenuto salvato con successo!");
+            this.fileBlob = null;
+            this.tipo = null;
+
+           
+            this.clickHome(windowC);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
-
-    try {
-        int maxPosizione = this.getMaxPosizione() + 1;
-
-        this.db.inserisciContenuto(
-            this.fileBlob,
-            titolo,
-            descrizione,
-            this.tipo,
-            this.email,
-            maxPosizione,
-            pubblico
-        );
-
-        this.ab.alert("Contenuto salvato con successo!");
-        this.fileBlob = null;
-        this.tipo = null;
-
-        this.clickHome(windowC);
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        this.ab.alert("Errore durante il salvataggio del contenuto.");
-    }
-}
 
     public int getMaxPosizione() throws SQLException {
         return db.getMaxPosizione(this.email);
@@ -143,25 +130,66 @@ public class HomePageControl {
         return;
     }
 
-    VisualizzaContenutoBound visualizzaContenutoBound = new VisualizzaContenutoBound(this, risorsa);
-    this.hb.mostraPannelloVisualizzazioneContenuto(visualizzaContenutoBound);
-}
+    String mimeType = risorsa.getTipo().toLowerCase();
 
-  public void createGestioneProfiloBound() {
-    GestioneProfiloBound gestioneProfiloBound = new GestioneProfiloBound(this);
-    this.mostraGestioneProfilo(gestioneProfiloBound);
-  }
+    try {
+        File tempFile = null;
 
-  public void createCaricaGestioneProfiloBound() {
-    this.createGestioneProfiloBound();
+        // Gestione PDF
+        if (mimeType.equals("application/pdf")) {
+            tempFile = File.createTempFile("opera_", ".pdf");
+        } 
+        // NUOVO: Gestione Video
+        else if (mimeType.startsWith("video/")) {
+            // Estraiamo la sotto-estensione (es. mp4, mkv) o usiamo mp4 di fallback
+            String estensione = mimeType.contains("/") ? "." + mimeType.split("/")[1] : ".mp4";
+            tempFile = File.createTempFile("video_artistico_", estensione);
+        } 
+        // NUOVO: Gestione Audio
+        else if (mimeType.startsWith("audio/")) {
+            String estensione = mimeType.contains("/") ? "." + mimeType.split("/")[1] : ".mp3";
+            tempFile = File.createTempFile("audio_artistico_", estensione);
+        }
+        // Gestione Testo
+        else if (mimeType.startsWith("text/")) {
+            tempFile = File.createTempFile("testo_", ".txt");
+        } 
+        // Gestione di altri formati generici
+        else {
+            String estensione = mimeType.contains("/") ? "." + mimeType.split("/")[1] : ".bin";
+            tempFile = File.createTempFile("allegato_", estensione);
+        }
+
+        // Se è stato generato un file temporaneo, vi scriviamo i byte e lo lanciamo
+        if (tempFile != null) {
+            tempFile.deleteOnExit(); // Viene rimosso alla chiusura dell'app
+            
+            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                fos.write(risorsa.getFile());
+            }
+            
+            // Apertura nativa tramite xdg-open (ottimale per Linux)
+            String os = System.getProperty("os.name").toLowerCase();
+            if (os.contains("nix") || os.contains("nux")) {
+                Runtime.getRuntime().exec(new String[]{"xdg-open", tempFile.getAbsolutePath()});
+            } else {
+                Runtime.getRuntime().exec(new String[]{"xdg-open", tempFile.getAbsolutePath()});
+            }
+        }
+
+    } catch (IOException ex) {
+        ex.printStackTrace();
+        this.ab.alert("Impossibile riprodurre o aprire il file multimediale su questo sistema.");
+    }
   }
 
   public void createCaricaFotoProfiloBound() {
-    this.createGestioneProfiloBound();
+    CaricaFotoProfiloBound cfpb = new CaricaFotoProfiloBound(this);
+    mostraCaricamentoImmagine(cfpb);
   }
 
-  public void mostraGestioneProfilo(GestioneProfiloBound gestioneProfiloBound){ 
-    this.hb.mostraPannelloGestioneProfilo(gestioneProfiloBound);
+  public void mostraCaricamentoImmagine(CaricaFotoProfiloBound cfpb){ 
+    this.hb.mostraPannelloCaricamentoFoto(cfpb);
   }
 
  
@@ -302,7 +330,7 @@ public void visualizzaStudente(StudenteEntity studente) {
 }
 
 public void requestPublicContent(StudenteEntity studente) {
-    List<ContenutoEntity> contentList = this.db.getPublicResources(studente.getEmail());
+    List<ContenutoEntity> contentList = this.db.getResources(studente.getEmail());
 
     if (contentList == null || contentList.isEmpty()) {
         this.hb.mostraListaContenutiPubblici(contentList);
@@ -364,138 +392,5 @@ public void cancellaNomeInserito() {
             e.printStackTrace();
         }
     }
-    public void logout(Object windowContext) {
-        src.gestioneCredenziali.LoginBound loginBound = new src.gestioneCredenziali.LoginBound();
-        loginBound.visualizza(windowContext);
-    }
-    public String getDescrizioneProfilo() {
-    try {
-        StudenteEntity studente = this.db.getUserInfo(this.email);
 
-        if (studente != null && studente.getDescrizione() != null) {
-            return studente.getDescrizione();
-        }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        this.ab.alert("Errore durante il recupero della descrizione profilo.");
-    }
-
-    return "";
-}
-
-public void aggiornaDescrizioneProfilo(String descrizione, Object windowContext) {
-    try {
-        this.db.aggiornaDescrizioneProfilo(this.email, descrizione);
-        this.ab.alert("Descrizione profilo aggiornata con successo!");
-        this.clickHome(windowContext);
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        this.ab.alert("Errore durante l'aggiornamento della descrizione profilo.");
-    }
-}
-
-    public byte[] getFotoProfilo() {
-        return this.db.getProfilePicture(this.email);
-    }
-    public void avviaEliminazioneContenuto(ContenutoEntity contenuto, Object windowContext) {
-    if (contenuto == null) {
-        this.ab.alert("Errore: contenuto non valido.");
-        return;
-    }
-
-    boolean confermato = this.ab.conferma("Sei sicuro di volere rimuovere questa risorsa?");
-
-    if (confermato) {
-        this.confermaEliminazione(contenuto, windowContext);
-    } else {
-        this.annullaEliminazione();
-    }
-}
-
-public void confermaEliminazione(ContenutoEntity contenuto, Object windowContext) {
-    try {
-        this.db.richiediEliminazioneContenuto(contenuto.getId(), this.email);
-
-        this.ab.alert("Risorsa rimossa con successo");
-
-        this.ricaricaPagina(windowContext);
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        this.ab.alert("Errore durante l'eliminazione della risorsa.");
-    }
-}
-
-public void annullaEliminazione() {
-    System.out.println("Eliminazione annullata dall'utente.");
-}
-
- 
-public void sendToModifica(ContenutoEntity contenuto) {
-    if (contenuto == null) {
-        this.ab.alert("Errore: contenuto non valido.");
-        return;
-    }
-
-    ModificaBound modificaBound = new ModificaBound(this, contenuto);
-    this.hb.mostraModificaBound(modificaBound);
-}
-
-public void confermaModificaContenuto(ContenutoEntity contenuto, File file, String titolo, String descrizione, Object windowContext) {
-    if (contenuto == null) {
-        this.ab.alert("Errore: contenuto non valido.");
-        return;
-    }
-
-    if (titolo == null || titolo.trim().isEmpty()) {
-        this.ab.alert("Errore: il titolo è obbligatorio.");
-        return;
-    }
-
-    this.salvaModifiche(contenuto, file, titolo.trim(), descrizione, windowContext);
-}
-
-public void salvaModifiche(ContenutoEntity contenuto, File file, String titolo, String descrizione, Object windowContext) {
-    try {
-        byte[] fileBlob = null;
-        String tipo = null;
-
-        if (file != null) {
-            fileBlob = Files.readAllBytes(file.toPath());
-            tipo = Files.probeContentType(file.toPath());
-
-            if (tipo == null) {
-                tipo = "application/octet-stream";
-            }
-
-            System.out.println("Nuovo MimeType rilevato: " + tipo);
-        }
-
-        this.db.modifica(
-            contenuto.getId(),
-            this.email,
-            fileBlob,
-            titolo,
-            descrizione,
-            tipo
-        );
-
-        this.ab.alert("Contenuto modificato con successo!");
-
-        this.clickHome(windowContext);
-
-    } catch (IOException e) {
-        e.printStackTrace();
-        this.ab.alert("Errore durante la lettura del nuovo file.");
-    } catch (Exception e) {
-        e.printStackTrace();
-        this.ab.alert("Errore durante la modifica del contenuto:\n" + e.getMessage());
-    }
-}
-public void clickModifyPwd(Object windowContext) {
-    UpdatePasswordBound updatePasswordBound = new UpdatePasswordBound(this.email);
-    updatePasswordBound.visualizza(windowContext);
-}
 }
