@@ -435,6 +435,7 @@ public void aggiornaDescrizioneProfilo(String email, String descrizione) throws 
         }
     }
 }
+
 public void richiediEliminazioneContenuto(int idContenuto, String emailStudente) throws SQLException {
     this.eliminaContenuto(idContenuto, emailStudente);
 }
@@ -454,6 +455,30 @@ public void richiediEliminazioneContenuto(int idContenuto, String emailStudente)
                 throw new SQLException("Nessun contenuto trovato oppure contenuto non appartenente all'utente.");
             }
         }
+    }
+
+public void salvaCorrispondenza(String email, String localLink , String extLink,String senderEmail) throws SQLException{
+            String query = "INSERT INTO condivisioni (email_associata, link_locale, link_esterno,email_mittente) VALUES (?, ?, ?,?)";
+        
+            try (Connection conn = eseguiConnessione();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            // Associazione dei parametri posizionali (?) ai valori passati alla funzione
+            stmt.setString(1, email);
+            stmt.setString(2, localLink);
+            stmt.setString(3, extLink);
+            stmt.setString(4,senderEmail);
+            
+            // Esegue l'inserimento nel database
+            int righeImpatto = stmt.executeUpdate();
+        // Verifica di sicurezza opzionale per confermare l'avvenuto inserimento
+            if (righeImpatto == 0) {
+                throw new SQLException("Errore critico: impossibile salvare la corrispondenza del link nel database.");
+            }
+        }
+
+
+
     }
 
     public void modifica(int idContenuto, String emailStudente, byte[] file, String titolo, String descrizione, String tipo) throws SQLException {
@@ -489,7 +514,8 @@ public void richiediEliminazioneContenuto(int idContenuto, String emailStudente)
             }
         }
     }
-        public boolean verifyIfEmailExists(String email) throws SQLException {
+
+public boolean verifyIfEmailExists(String email) throws SQLException {
     String query = "SELECT COUNT(*) FROM utenti WHERE email = ?";
 
     try (Connection conn = eseguiConnessione();
@@ -521,6 +547,37 @@ public void transmitPassword(String email, String passwordHash) throws SQLExcept
         if (righeImpatto == 0) {
             throw new SQLException("Nessun utente trovato con l'email specificata.");
         }
+    }
+}
+        public boolean esisteGiaCondivisione(String emailDestinatario, String linkDropbox) throws SQLException {
+    String query = "SELECT COUNT(*) FROM condivisioni WHERE email_associata = ? AND link_esterno = ?";
+    try (Connection conn = eseguiConnessione();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+        stmt.setString(1, emailDestinatario);
+        stmt.setString(2, linkDropbox);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) return rs.getInt(1) > 0;
+        }
+    }
+    return false;
+}
+public String getLinkEsterno(String token) throws SQLException {
+    String query = "SELECT link_esterno FROM condivisioni WHERE link_locale LIKE ?";
+    try (Connection conn = eseguiConnessione();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+        stmt.setString(1, "%token=" + token);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) return rs.getString("link_esterno");
+        }
+    }
+    return null;
+}
+public void registraVisualizzazione(String token) throws SQLException {
+    String query = "UPDATE condivisioni SET visualized = 1 WHERE link_locale LIKE ?";
+    try (Connection conn = eseguiConnessione();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+        stmt.setString(1, "%token=" + token);
+        stmt.executeUpdate();
     }
 }
 } 

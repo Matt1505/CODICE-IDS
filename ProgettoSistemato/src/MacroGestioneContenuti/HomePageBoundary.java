@@ -76,7 +76,7 @@ public class HomePageBoundary {
         // Immagine di profilo arrotondata
         ImageView profileImageView = new ImageView();
         try {
-            profileImageView.setImage(new Image(getClass().getResourceAsStream("/src/Assets/defaultProfilePicture.jpeg")));
+            profileImageView.setImage(new Image("file:src/Assets/defaultProfilePicture.jpeg"));
         } catch (Exception e) {
             e.printStackTrace(); 
         }
@@ -545,7 +545,7 @@ public class HomePageBoundary {
     }
 
     public void inviaSelezione(){
-        this.sendFileControl.createResumePageBound(this.getSelectedContent());
+        this.sendFileControl.createResumePageBound(this.getSelectedContent(), this.rootContainer.getScene().getWindow(),this.email);
     }
 
     public void abilitaContentCheckBox(int i){
@@ -704,5 +704,24 @@ public void mostraModificaBound(ModificaBound modificaBound) {
     this.rootContainer.getChildren().clear();
     this.rootContainer.getChildren().add(modificaBound.visualizza());
 } 
-
+public void disableSendButton(){
+        this.btnInvia.setVisible(false);
+        this.btnInvia.setDisable(true);
+    }
+    public void disabilitaContentCheckBox(int i){
+        if (i < 0 || i >= this.resourcesContainer.getChildren().size()) return;
+        
+        VBox card = (VBox) this.resourcesContainer.getChildren().get(i);
+        StackPane previewArea = (StackPane) card.getChildren().get(0);
+        
+        for (javafx.scene.Node node : previewArea.getChildren()) {
+            if (node instanceof CheckBox) {
+                CheckBox chkSeleziona = (CheckBox) node;
+                chkSeleziona.setDisable(true);
+                chkSeleziona.setVisible(false);
+                chkSeleziona.setManaged(true);
+                break; 
+            }
+        }
+    }
 }

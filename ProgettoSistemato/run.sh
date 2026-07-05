@@ -7,23 +7,31 @@ if [ -z "$1" ] || [ ! -f "$1" ]; then
     exit 1
 fi
 
-# Definiamo i percorsi delle librerie (Aggiornati in base alla nuova cartella 'src/libraries')
+# Librerie
 FX_PATH="./src/libraries/javafx-sdk-21.0.11/lib"
 SQL_PATH="./src/libraries/mysql/mysql-connector-j-9.7.0.jar"
 MAIL_PATH="./src/libraries/jakarta.mail-2.0.1.jar"
 ACTIVATION_PATH="./src/libraries/jakarta.activation-api-2.1.3.jar"
 
-# Pulizia preventiva dei vecchi file compilati nelle cartelle esistenti
+# Dropbox + Jackson
+DROPBOX_PATH="./src/libraries/dropbox-core-sdk-8.0.1.jar"
+JACKSON_ANNOTATIONS_PATH="./src/libraries/jackson-annotations-3.0-rc5.jar"
+JACKSON_CORE_PATH="./src/libraries/jackson-core-2.22.0.jar"
+JACKSON_DATABIND_PATH="./src/libraries/jackson-databind-2.22.0.jar"
+
+# Classpath completo
+CP=".:$SQL_PATH:$MAIL_PATH:$ACTIVATION_PATH:$DROPBOX_PATH:$JACKSON_ANNOTATIONS_PATH:$JACKSON_CORE_PATH:$JACKSON_DATABIND_PATH"
+
 echo "Pulizia dei vecchi file compilati (.class)..."
 find . -name "*.class" -type f -delete
 
-# 2. Compilazione
 echo "Compilazione di tutti i moduli in corso..."
-
-# Trova TUTTI i file .java nel progetto
 find . -name "*.java" > sorgenti.txt
 
-javac --module-path "$FX_PATH" --add-modules javafx.controls,javafx.media -cp ".:$SQL_PATH:$MAIL_PATH:$ACTIVATION_PATH" @sorgenti.txt
+javac --module-path "$FX_PATH" \
+      --add-modules javafx.controls,javafx.media \
+      -cp "$CP" \
+      @sorgenti.txt
 
 COMPILATION_RESULT=$?
 
@@ -34,13 +42,13 @@ if [ $COMPILATION_RESULT -ne 0 ]; then
     exit 1
 fi
 
-# 3. Estrazione del nome della classe con il suo package (es. src.MacroGestioneCredenziali.LoginBoundary)
-# Converte i separatori di percorso "/" in punti "." per Java
 CLASS_NAME=$(echo "$1" | sed 's/\.java//' | sed 's/\//\./g')
-
-# Rimuove eventuali punti residui all'inizio (es. se passi ./src/... o ../src/...)
 CLASS_NAME=$(echo "$CLASS_NAME" | sed 's/^\.\.//' | sed 's/^\.//')
 
-# 4. Esecuzione
 echo "Avvio di $CLASS_NAME..."
-java --enable-native-access=javafx.graphics,javafx.media --module-path "$FX_PATH" --add-modules javafx.controls,javafx.media -cp ".:$SQL_PATH:$MAIL_PATH:$ACTIVATION_PATH" "$CLASS_NAME"
+
+java --enable-native-access=javafx.graphics,javafx.media \
+     --module-path "$FX_PATH" \
+     --add-modules javafx.controls,javafx.media \
+     -cp "$CP" \
+     "$CLASS_NAME"

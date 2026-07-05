@@ -75,11 +75,11 @@ public class HomePageControl {
     }
 
         
-        public void salvaContenuto(String titolo, String descrizione, boolean pubblico, Object windowC) {
-    if (this.fileBlob == null) {
+    public void salvaContenuto(String titolo, String descrizione, boolean pubblico, Object windowC) {
+        if (this.fileBlob == null) {
         this.ab.alert("Errore: Seleziona prima un file d'arte!");
         return;
-    }
+    }   
 
     try {
         int maxPosizione = this.getMaxPosizione() + 1;
