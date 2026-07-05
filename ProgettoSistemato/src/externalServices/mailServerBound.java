@@ -16,9 +16,6 @@ public class mailServerBound {
     private final String host = "smtp.gmail.com";
     private final String port = "587";
     
-    
-
-
     public void sendOtpEmail(String toEmail, String otp) {
         
         // 1. Impostazione delle proprietà del server SMTP
@@ -119,4 +116,3 @@ public void mailCondivisione(String toEmail, String link) {
 
 
 }
-
