@@ -439,21 +439,88 @@ public void richiediEliminazioneContenuto(int idContenuto, String emailStudente)
     this.eliminaContenuto(idContenuto, emailStudente);
 }
 
-private void eliminaContenuto(int idContenuto, String emailStudente) throws SQLException {
-    String query = "DELETE FROM contenuti WHERE id = ? AND studente_email = ?";
+    private void eliminaContenuto(int idContenuto, String emailStudente) throws SQLException {
+        String query = "DELETE FROM contenuti WHERE id = ? AND studente_email = ?";
+
+        try (Connection conn = eseguiConnessione();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, idContenuto);
+            stmt.setString(2, emailStudente);
+
+            int righeImpatto = stmt.executeUpdate();
+
+            if (righeImpatto == 0) {
+                throw new SQLException("Nessun contenuto trovato oppure contenuto non appartenente all'utente.");
+            }
+        }
+    }
+
+    public void modifica(int idContenuto, String emailStudente, byte[] file, String titolo, String descrizione, String tipo) throws SQLException {
+        String query;
+
+        if (file != null) {
+            query = "UPDATE contenuti SET file_blob = ?, titolo = ?, descrizione = ?, tipo = ? WHERE id = ? AND studente_email = ?";
+        } else {
+            query = "UPDATE contenuti SET titolo = ?, descrizione = ? WHERE id = ? AND studente_email = ?";
+        }
+
+        try (Connection conn = eseguiConnessione();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            if (file != null) {
+                stmt.setBytes(1, file);
+                stmt.setString(2, titolo);
+                stmt.setString(3, descrizione);
+                stmt.setString(4, tipo);
+                stmt.setInt(5, idContenuto);
+                stmt.setString(6, emailStudente);
+            } else {
+                stmt.setString(1, titolo);
+                stmt.setString(2, descrizione);
+                stmt.setInt(3, idContenuto);
+                stmt.setString(4, emailStudente);
+            }
+
+            int righeImpatto = stmt.executeUpdate();
+
+            if (righeImpatto == 0) {
+                throw new SQLException("Nessun contenuto trovato oppure contenuto non appartenente all'utente.");
+            }
+        }
+    }
+        public boolean verifyIfEmailExists(String email) throws SQLException {
+    String query = "SELECT COUNT(*) FROM utenti WHERE email = ?";
 
     try (Connection conn = eseguiConnessione();
          PreparedStatement stmt = conn.prepareStatement(query)) {
 
-        stmt.setInt(1, idContenuto);
-        stmt.setString(2, emailStudente);
+        stmt.setString(1, email);
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+    }
+
+    return false;
+}
+
+public void transmitPassword(String email, String passwordHash) throws SQLException {
+    String query = "UPDATE utenti SET password = ? WHERE email = ?";
+
+    try (Connection conn = eseguiConnessione();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+
+        stmt.setString(1, passwordHash);
+        stmt.setString(2, email);
 
         int righeImpatto = stmt.executeUpdate();
 
         if (righeImpatto == 0) {
-            throw new SQLException("Nessun contenuto trovato oppure contenuto non appartenente all'utente.");
+            throw new SQLException("Nessun utente trovato con l'email specificata.");
         }
     }
 }
-
 } 

@@ -16,6 +16,8 @@ import src.GeneralClasses.Entities.StudenteEntity;
 
 import java.util.HashMap;
 
+import src.gestioneCredenziali.UpdatePasswordBound;
+
 public class HomePageControl {
     private HomePageBoundary hb;
     private CaricamentoFileBound cFileBound;
@@ -428,5 +430,72 @@ public void confermaEliminazione(ContenutoEntity contenuto, Object windowContext
 
 public void annullaEliminazione() {
     System.out.println("Eliminazione annullata dall'utente.");
+}
+
+ 
+public void sendToModifica(ContenutoEntity contenuto) {
+    if (contenuto == null) {
+        this.ab.alert("Errore: contenuto non valido.");
+        return;
+    }
+
+    ModificaBound modificaBound = new ModificaBound(this, contenuto);
+    this.hb.mostraModificaBound(modificaBound);
+}
+
+public void confermaModificaContenuto(ContenutoEntity contenuto, File file, String titolo, String descrizione, Object windowContext) {
+    if (contenuto == null) {
+        this.ab.alert("Errore: contenuto non valido.");
+        return;
+    }
+
+    if (titolo == null || titolo.trim().isEmpty()) {
+        this.ab.alert("Errore: il titolo è obbligatorio.");
+        return;
+    }
+
+    this.salvaModifiche(contenuto, file, titolo.trim(), descrizione, windowContext);
+}
+
+public void salvaModifiche(ContenutoEntity contenuto, File file, String titolo, String descrizione, Object windowContext) {
+    try {
+        byte[] fileBlob = null;
+        String tipo = null;
+
+        if (file != null) {
+            fileBlob = Files.readAllBytes(file.toPath());
+            tipo = Files.probeContentType(file.toPath());
+
+            if (tipo == null) {
+                tipo = "application/octet-stream";
+            }
+
+            System.out.println("Nuovo MimeType rilevato: " + tipo);
+        }
+
+        this.db.modifica(
+            contenuto.getId(),
+            this.email,
+            fileBlob,
+            titolo,
+            descrizione,
+            tipo
+        );
+
+        this.ab.alert("Contenuto modificato con successo!");
+
+        this.clickHome(windowContext);
+
+    } catch (IOException e) {
+        e.printStackTrace();
+        this.ab.alert("Errore durante la lettura del nuovo file.");
+    } catch (Exception e) {
+        e.printStackTrace();
+        this.ab.alert("Errore durante la modifica del contenuto:\n" + e.getMessage());
+    }
+}
+public void clickModifyPwd(Object windowContext) {
+    UpdatePasswordBound updatePasswordBound = new UpdatePasswordBound(this.email);
+    updatePasswordBound.visualizza(windowContext);
 }
 }

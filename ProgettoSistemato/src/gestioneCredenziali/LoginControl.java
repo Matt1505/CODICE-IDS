@@ -164,7 +164,10 @@ public class LoginControl {
         lb.visualizza(windowContext);
     }
 
-
+public void showRecuperoPasswordPage(Object windowContext) {
+    RecuperaPasswordBound recuperaPasswordBound = new RecuperaPasswordBound();
+    recuperaPasswordBound.visualizza(windowContext);
+}
 
     
 }

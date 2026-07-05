@@ -43,4 +43,4 @@ CLASS_NAME=$(echo "$CLASS_NAME" | sed 's/^\.\.//' | sed 's/^\.//')
 
 # 4. Esecuzione
 echo "Avvio di $CLASS_NAME..."
-java --module-path "$FX_PATH" --add-modules javafx.controls,javafx.media -cp ".:$SQL_PATH:$MAIL_PATH:$ACTIVATION_PATH" "$CLASS_NAME"
+java --enable-native-access=javafx.graphics,javafx.media --module-path "$FX_PATH" --add-modules javafx.controls,javafx.media -cp ".:$SQL_PATH:$MAIL_PATH:$ACTIVATION_PATH" "$CLASS_NAME"

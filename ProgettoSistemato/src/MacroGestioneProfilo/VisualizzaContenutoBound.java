@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import src.GeneralClasses.Entities.ContenutoEntity;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -55,7 +56,13 @@ public class VisualizzaContenutoBound {
         if (mimeType.startsWith("image/")) {
             contentBox.getChildren().add(creaImageView());
         } else if (mimeType.startsWith("video/") || mimeType.startsWith("audio/")) {
-            contentBox.getChildren().add(creaMediaView());
+            ImageView imageView = creaImageView();
+
+            VBox imageContainer = new VBox(imageView);
+            imageContainer.setAlignment(Pos.CENTER);
+            imageContainer.setPadding(new Insets(15));
+
+contentBox.getChildren().add(imageContainer);
         } else {
             Label nonSupportato = new Label("Anteprima interna non disponibile per questo formato.");
             nonSupportato.setStyle("-fx-font-size: 14px; -fx-text-fill: #8FA9C7;");
@@ -75,7 +82,9 @@ public class VisualizzaContenutoBound {
         Image image = new Image(new ByteArrayInputStream(contenuto.getFile()));
 
         ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(800);
+
+        imageView.setFitWidth(600);
+        imageView.setFitHeight(450);
         imageView.setPreserveRatio(true);
         imageView.setSmooth(true);
 

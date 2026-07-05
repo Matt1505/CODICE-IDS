@@ -123,6 +123,15 @@ public class GestioneProfiloBound {
         Label lblSezioneAccount = new Label("Account");
         lblSezioneAccount.setStyle(labelStyle);
 
+        Button btnModificaPassword = new Button("Modifica Password");
+btnModificaPassword.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-cursor: hand;");
+
+btnModificaPassword.setOnMouseEntered(e -> btnModificaPassword.setStyle("-fx-background-color: #091B33; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-cursor: hand;"));
+
+btnModificaPassword.setOnMouseExited(e -> btnModificaPassword.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-cursor: hand;"));
+
+btnModificaPassword.setOnAction(e -> this.clickModifyPwd());
+
         Button btnLogout = new Button("Logout");
         btnLogout.setStyle("-fx-background-color: #DC3545; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;");
         btnLogout.setOnMouseEntered(e -> btnLogout.setStyle("-fx-background-color: #B02A37; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;"));
@@ -135,26 +144,27 @@ public class GestioneProfiloBound {
         btnAnnulla.setOnMouseExited(e -> btnAnnulla.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 25; -fx-cursor: hand;"));
         btnAnnulla.setOnAction(e -> this.goHome());
 
-        root.getChildren().addAll(
-                lblIntestazione,
-                lblInfo,
+       root.getChildren().addAll(
+        lblIntestazione,
+        lblInfo,
 
-                new Separator(),
+        new Separator(),
 
-                lblSezioneFoto,
-                boxFoto,
+        lblSezioneFoto,
+        boxFoto,
 
-                new Separator(),
+        new Separator(),
 
-                lblSezioneBio,
-                this.descrizioneContainer,
+        lblSezioneBio,
+        this.descrizioneContainer,
 
-                new Separator(),
+        new Separator(),
 
-                lblSezioneAccount,
-                btnLogout,
-                btnAnnulla
-        );
+        lblSezioneAccount,
+        btnModificaPassword,
+        btnLogout,
+        btnAnnulla
+);
 
         return root;
     }
@@ -249,4 +259,8 @@ public class GestioneProfiloBound {
         Stage stageCorrente = (Stage) this.lblStatusFile.getScene().getWindow();
         controller.logout(stageCorrente);
     }
+    private void clickModifyPwd() {
+    Stage stageCorrente = (Stage) this.lblStatusFile.getScene().getWindow();
+    this.controller.clickModifyPwd(stageCorrente);
+}
 }

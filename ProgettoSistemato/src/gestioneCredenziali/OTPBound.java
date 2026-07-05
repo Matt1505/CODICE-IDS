@@ -19,11 +19,12 @@ public class OTPBound {
     private RegisterControl registerController;
     private LoginControl loginController;
     private String email;
+    private GestionePasswordControl gestionePasswordControl;
 
     public OTPBound(RegisterControl rc,String email) {
         this.registerController=rc;
         this.email=email;
-
+        this.gestionePasswordControl = gestionePasswordControl;
     }
 
     public OTPBound(LoginControl lc,String email){
@@ -33,19 +34,23 @@ public class OTPBound {
 
     }
 
-
+    public OTPBound(GestionePasswordControl gestionePasswordControl, String email) {
+        this.gestionePasswordControl = gestionePasswordControl;
+        this.email = email;
+    }
     public void visualizza(Object windowContext){
         if(windowContext instanceof Stage){
             Stage stage=(Stage) windowContext;
-            Platform.runLater(()->{this.buildScene(stage, registerController, loginController, email);});
-                
+            Platform.runLater(() -> {
+                this.buildScene(stage, registerController, loginController, gestionePasswordControl, email);
+            });    
         }
 
 
     }
     
 
-    private static void buildScene(Stage stage, RegisterControl rc, LoginControl lc, String email) {
+    private static void buildScene(Stage stage, RegisterControl rc, LoginControl lc, GestionePasswordControl gpc, String email) {
         GridPane grid = new GridPane();
         // Sfondo coordinato in grigio-blu
         grid.setStyle("-fx-background-color: #F0F4F8;");
@@ -81,7 +86,7 @@ public class OTPBound {
 
         verifyBtn.setOnAction(e -> {
             // Invoca la funzione di ponte corretta passando il valore dell'OTP e l'email
-            sendOtpToControl(otpField.getText(), email, rc, lc,stage);
+            sendOtpToControl(otpField.getText(), email, rc, lc, gpc, stage);
         });
 
         // Dimensione adattata per ospitare comodamente la nuova intestazione
@@ -92,11 +97,13 @@ public class OTPBound {
     }
 
     // Risolti gli errori 1 e 2: Utilizzo della firma esatta 'requestGeneratedOTP(email, codice)' definita nei Control
-    public static void sendOtpToControl(String inputOtp, String email, RegisterControl rc, LoginControl lc,Stage stage){
+    public static void sendOtpToControl(String inputOtp, String email, RegisterControl rc, LoginControl lc, GestionePasswordControl gpc, Stage stage) {
         if (rc != null) {
-            rc.requestGeneratedOTP(email, inputOtp,stage);
+            rc.requestGeneratedOTP(email, inputOtp, stage);
         } else if (lc != null) {
-            lc.requestGeneratedOTP(email, inputOtp,stage);
+            lc.requestGeneratedOTP(email, inputOtp, stage);
+        } else if (gpc != null) {
+            gpc.requestGeneratedOTP(email, inputOtp, stage);
         }
     }
 }

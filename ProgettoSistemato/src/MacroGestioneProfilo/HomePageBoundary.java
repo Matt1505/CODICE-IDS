@@ -403,6 +403,7 @@ public class HomePageBoundary {
         btnModifica.setOnMouseEntered(e -> btnModifica.setStyle("-fx-background-color: #F4F7FB; -fx-text-fill: #12305C; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 6;"));
         btnModifica.setOnMouseExited(e -> btnModifica.setStyle("-fx-background-color: transparent; -fx-text-fill: #12305C; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold;"));
         actionBox.getChildren().add(btnModifica);
+        btnModifica.setOnAction(e -> clickModifica((ContenutoEntity) card.getUserData()));
     }
 
     public void associaBottoneRimozione() {
@@ -694,4 +695,13 @@ public class HomePageBoundary {
         Scene scene = new Scene(layout, 900, 700);
         currentStage.setScene(scene);
     }
+
+    public void clickModifica(ContenutoEntity contenuto) {
+    this.hc.sendToModifica(contenuto);
+}
+public void mostraModificaBound(ModificaBound modificaBound) {
+    this.rootContainer.getChildren().clear();
+    this.rootContainer.getChildren().add(modificaBound.visualizza());
+} 
+
 }
