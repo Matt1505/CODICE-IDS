@@ -15,19 +15,24 @@ import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import src.MacroGestioneContenuti.HomePageControl;
+import src.MacroGestioneCredenziali.GestionePasswordControl;
+
 public class GestioneProfiloBound {
     private HomePageControl controller;
-
+    private GestionePasswordControl passwordControl;
     private Label lblStatusFile;
     private Label lblDescrizioneCorrente;
     private TextArea txtDescrizione;
     private VBox descrizioneContainer;
     private ImageView imgProfilo;
 
+
     private String email;
 
     public GestioneProfiloBound(HomePageControl controller) {
         this.controller = controller;
+        this.passwordControl=new GestionePasswordControl();
         this.email = controller.getEmail();
     }
 
@@ -62,7 +67,7 @@ public class GestioneProfiloBound {
             this.imgProfilo.setImage(new Image(new ByteArrayInputStream(fotoProfilo)));
         } else {
             try {
-                this.imgProfilo.setImage(new Image(getClass().getResourceAsStream("/Assets/defaultProfilePicture.jpeg")));
+                this.imgProfilo.setImage(new Image(getClass().getResourceAsStream("src/Assets/defaultProfilePicture.jpeg")));
             } catch (Exception e) {
                 // Immagine default assente
             }
@@ -71,7 +76,7 @@ public class GestioneProfiloBound {
         Circle clip = new Circle(45, 45, 45);
         this.imgProfilo.setClip(clip);
 
-        Button btnSeleziona = new Button("Sfoglia Immagine Profilo...");
+        Button btnSeleziona = new Button("SFOGLIA IMMAGINI");
         btnSeleziona.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 15; -fx-cursor: hand;");
         btnSeleziona.setOnMouseEntered(e -> btnSeleziona.setStyle("-fx-background-color: #091B33; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 15; -fx-cursor: hand;"));
         btnSeleziona.setOnMouseExited(e -> btnSeleziona.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 15; -fx-cursor: hand;"));
@@ -80,7 +85,7 @@ public class GestioneProfiloBound {
         this.lblStatusFile = new Label("Nessuna immagine profilo selezionata");
         this.lblStatusFile.setStyle("-fx-text-fill: #16325B; -fx-font-family: 'Segoe UI'; -fx-font-size: 12px; -fx-font-style: italic;");
 
-        Button btnAggiungi = new Button("Imposta Foto Profilo");
+        Button btnAggiungi = new Button("IMPOSTA FOTO PROFILO");
         btnAggiungi.setStyle("-fx-background-color: #091B33; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;");
         btnAggiungi.setOnMouseEntered(e -> btnAggiungi.setStyle("-fx-background-color: #0A1C3A; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;"));
         btnAggiungi.setOnMouseExited(e -> btnAggiungi.setStyle("-fx-background-color: #091B33; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;"));
@@ -123,22 +128,22 @@ public class GestioneProfiloBound {
         Label lblSezioneAccount = new Label("Account");
         lblSezioneAccount.setStyle(labelStyle);
 
-        Button btnModificaPassword = new Button("Modifica Password");
+        Button btnModificaPassword = new Button("MODIFICA PASSWORD");
 btnModificaPassword.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-cursor: hand;");
 
 btnModificaPassword.setOnMouseEntered(e -> btnModificaPassword.setStyle("-fx-background-color: #091B33; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-cursor: hand;"));
 
 btnModificaPassword.setOnMouseExited(e -> btnModificaPassword.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-cursor: hand;"));
 
-btnModificaPassword.setOnAction(e -> this.clickModifyPwd());
+btnModificaPassword.setOnAction(e -> this.modificaPwd());
 
-        Button btnLogout = new Button("Logout");
+        Button btnLogout = new Button("LOGOUT");
         btnLogout.setStyle("-fx-background-color: #DC3545; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;");
         btnLogout.setOnMouseEntered(e -> btnLogout.setStyle("-fx-background-color: #B02A37; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;"));
         btnLogout.setOnMouseExited(e -> btnLogout.setStyle("-fx-background-color: #DC3545; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;"));
         btnLogout.setOnAction(e -> this.logout());
 
-        Button btnAnnulla = new Button("Torna alla Home");
+        Button btnAnnulla = new Button("HOME");
         btnAnnulla.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 25; -fx-cursor: hand;");
         btnAnnulla.setOnMouseEntered(e -> btnAnnulla.setStyle("-fx-background-color: #091B33; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 25; -fx-cursor: hand;"));
         btnAnnulla.setOnMouseExited(e -> btnAnnulla.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 25; -fx-cursor: hand;"));
@@ -179,13 +184,13 @@ btnModificaPassword.setOnAction(e -> this.clickModifyPwd());
         this.txtDescrizione.setText(descrizioneAttuale != null ? descrizioneAttuale : "");
         this.txtDescrizione.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #C4D1DF; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 10; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;");
 
-        Button btnSalvaDescrizione = new Button("Salva Descrizione");
+        Button btnSalvaDescrizione = new Button("SALVA DESCRIZIONE");
         btnSalvaDescrizione.setStyle("-fx-background-color: #091B33; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;");
         btnSalvaDescrizione.setOnMouseEntered(e -> btnSalvaDescrizione.setStyle("-fx-background-color: #0A1C3A; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;"));
         btnSalvaDescrizione.setOnMouseExited(e -> btnSalvaDescrizione.setStyle("-fx-background-color: #091B33; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;"));
         btnSalvaDescrizione.setOnAction(e -> confermaModificaDescrizione());
 
-        Button btnAnnullaDescrizione = new Button("Annulla");
+        Button btnAnnullaDescrizione = new Button("ANNULLA");
         btnAnnullaDescrizione.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 25; -fx-cursor: hand;");
         btnAnnullaDescrizione.setOnAction(e -> nascondiEditorDescrizione());
 
@@ -235,7 +240,7 @@ btnModificaPassword.setOnAction(e -> this.clickModifyPwd());
                 // Anteprima non disponibile
             }
 
-            controller.trasformaInBlob(fileSelezionato);
+            controller.trasformaInBlobFotoProfilo(fileSelezionato);
         }
     }
 
@@ -259,8 +264,8 @@ btnModificaPassword.setOnAction(e -> this.clickModifyPwd());
         Stage stageCorrente = (Stage) this.lblStatusFile.getScene().getWindow();
         controller.logout(stageCorrente);
     }
-    private void clickModifyPwd() {
-    Stage stageCorrente = (Stage) this.lblStatusFile.getScene().getWindow();
-    this.controller.clickModifyPwd(stageCorrente);
-}
+    private void modificaPwd() {
+        Stage stageCorrente = (Stage) this.lblStatusFile.getScene().getWindow();
+        this.passwordControl.updatePwd(email,stageCorrente);
+    }
 }
