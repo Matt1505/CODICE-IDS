@@ -1,4 +1,4 @@
-package src.MacroGestioneProfilo;
+package src.MacroGestioneContenuti;
 
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -20,7 +20,8 @@ public class CaricamentoFileBound {
     private Label lblStatusFile;
     private String email;
     
-    
+    private CheckBox chkPubblico;
+
     // Il costruttore riceve la Control
     public CaricamentoFileBound(HomePageControl controller) {
         this.controller = controller;
@@ -42,7 +43,11 @@ public class CaricamentoFileBound {
         txtDescrizione.setPrefRowCount(3);
         txtDescrizione.setWrapText(true);
 
-        Button btnSeleziona = new Button("Sfoglia File d'Arte...");
+        this.chkPubblico = new CheckBox("Rendi pubblico questo contenuto");
+        this.chkPubblico.setSelected(true);
+        this.chkPubblico.setStyle("-fx-text-fill: #16325B; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px; -fx-font-weight: bold;");
+
+        Button btnSeleziona = new Button("SFOGLIA CONTENUTI");
         btnSeleziona.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 15; -fx-cursor: hand;");
         
         btnSeleziona.setOnMouseEntered(e -> btnSeleziona.setStyle("-fx-background-color: #091B33; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 15; -fx-cursor: hand;"));
@@ -51,7 +56,7 @@ public class CaricamentoFileBound {
         lblStatusFile = new Label("Nessun file d'arte selezionato");
         lblStatusFile.setStyle("-fx-text-fill: #16325B; -fx-font-family: 'Segoe UI'; -fx-font-size: 12px; -fx-font-style: italic;");
 
-        Button btnAggiungi = new Button("Aggiungi Contenuto");
+        Button btnAggiungi = new Button("AGGIUNGI CONTENUTO");
         btnAggiungi.setStyle("-fx-background-color: #091B33; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;");
         
         btnAggiungi.setOnMouseEntered(e -> btnAggiungi.setStyle("-fx-background-color: #0A1C3A; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;"));
@@ -60,7 +65,7 @@ public class CaricamentoFileBound {
         // Otteniamo lo stage dalla scena corrente al momento del click per il FileChooser
         btnSeleziona.setOnAction(e -> acquisisciFileSelezionato((Stage) btnSeleziona.getScene().getWindow()));
         btnAggiungi.setOnAction(e -> confermaCaricamentoContenuto());
-        Button btnAnnulla = new Button("Annulla e Torna alla Home");
+        Button btnAnnulla = new Button("ANNULLA E TORNA ALLA HOME");
 
         btnAnnulla.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 25; -fx-cursor: hand;");
         btnAnnulla.setOnMouseEntered(e -> btnAnnulla.setStyle("-fx-background-color: #091B33; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 25; -fx-cursor: hand;"));
@@ -70,7 +75,7 @@ public class CaricamentoFileBound {
         root.setStyle("-fx-background-color: #F0F4F8;");
         root.setPadding(new Insets(30));
         
-        Label lblIntestazione = new Label("Carica Nuovo Contenuto Artistico");
+        Label lblIntestazione = new Label("Carica Nuovo Contenuto");
         lblIntestazione.setStyle("-fx-font-family: 'Georgia'; -fx-font-weight: bold; -fx-font-size: 18px; -fx-text-fill: #091B33; -fx-padding: 0 0 10 0;");
 
         Label lblTitolo = new Label("Titolo:"); lblTitolo.setStyle(labelStyle);
@@ -78,9 +83,13 @@ public class CaricamentoFileBound {
 
         root.getChildren().addAll(
                 lblIntestazione,
-                lblTitolo, txtTitolo, 
-                lblDesc, txtDescrizione, 
-                btnSeleziona, lblStatusFile, 
+                lblTitolo, 
+                txtTitolo, 
+                lblDesc, 
+                txtDescrizione, 
+                btnSeleziona, 
+                lblStatusFile,
+                this.chkPubblico, 
                 new Separator(), 
                 btnAggiungi,
                 btnAnnulla
@@ -107,12 +116,13 @@ public class CaricamentoFileBound {
 
 
     // Risolto l'errore 3: Il metodo si limita a prelevare le stringhe e inviarle alla Control conformemente al tipo richiesto (String, String)
-    public void confermaCaricamentoContenuto() {
-        String titolo = txtTitolo.getText();
-        String descrizione = txtDescrizione.getText();
-
-        // Passa solo i campi di testo richiesti, rimuovendo il parametro superfluo "fileBlob"
-        controller.salvaContenuto(titolo, descrizione,txtTitolo.getScene().getWindow());
+    private void confermaCaricamentoContenuto() {
+        controller.salvaContenuto(
+            txtTitolo.getText(),
+            txtDescrizione.getText(),
+            this.chkPubblico.isSelected(),
+            this.txtTitolo.getScene().getWindow()
+        );
     }
 
 private void goHome() {

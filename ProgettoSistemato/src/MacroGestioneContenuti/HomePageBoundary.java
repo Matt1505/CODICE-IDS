@@ -34,8 +34,8 @@ public class HomePageBoundary {
     private Button btnCaricaFile;
     private Button btnCondividiContenuti;
     private Button btnRiordinaContenuti;
-    
     private Button btnModificaProfilo;
+    private Button btnInterrompi;
     private Button btnSalva;
     private Button btnInvia;
     private TextField txtCercaUtenti;
@@ -47,7 +47,7 @@ public class HomePageBoundary {
     public HomePageBoundary(String email) {
         this.email = email;
         this.hc = new HomePageControl(email, this);
-        this.sendFileControl= new SendFileControl(this);
+        this.sendFileControl= new SendFileControl(this,email);
         this.rootContainer = new VBox(0); 
         this.rootContainer.setStyle("-fx-background-color: #F4F7FB;"); // Sfondo app leggermente più luminoso
         
@@ -104,6 +104,13 @@ public class HomePageBoundary {
         btnSalva.setOnMouseExited(e -> btnSalva.setStyle("-fx-background-color: #2E7D32; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 20; -fx-padding: 6 15; -fx-font-weight: bold; -fx-effect: dropshadow(two-pass-box, rgba(46,125,50,0.4), 5, 0, 0, 2);"));
         btnSalva.setOnAction(event -> caricaNuovoOrdinamento());
 
+        btnInterrompi = new Button("INTERROMPI CONDIVISIONE");
+        btnInterrompi.setStyle("-fx-background-color: #2E7D32; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 20; -fx-padding: 6 15; -fx-font-weight: bold; -fx-effect: dropshadow(two-pass-box, rgba(46,125,50,0.4), 5, 0, 0, 2);");
+        btnInterrompi.setDisable(true);
+        btnInterrompi.setVisible(false);
+        btnInterrompi.setOnMouseEntered(e -> btnInterrompi.setStyle("-fx-background-color: #1B5E20; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 20; -fx-padding: 6 15; -fx-font-weight: bold; -fx-effect: dropshadow(two-pass-box, rgba(27,94,32,0.5), 6, 0, 0, 2);"));
+        btnInterrompi.setOnMouseExited(e -> btnInterrompi.setStyle("-fx-background-color: #2E7D32; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 20; -fx-padding: 6 15; -fx-font-weight: bold; -fx-effect: dropshadow(two-pass-box, rgba(46,125,50,0.4), 5, 0, 0, 2);"));
+        btnInterrompi.setOnAction(event -> interrompiCondivisione());
         profileContainer.getChildren().addAll(btnModificaInTestata, profileImageView);
         
         Label lblNomeCognome = new Label("Nome Cognome");
@@ -119,7 +126,7 @@ public class HomePageBoundary {
         String navBtnStyle = "-fx-background-color: transparent; -fx-border-color: #C4D1DF; -fx-border-radius: 20; -fx-padding: 8 16; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-text-fill: #12305C; -fx-cursor: hand; -fx-font-size: 13px;";
         String navBtnHover = "-fx-background-color: #F4F7FB; -fx-border-color: #12305C; -fx-border-radius: 20; -fx-padding: 8 16; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-text-fill: #12305C; -fx-cursor: hand; -fx-font-size: 13px;";
 
-        this.btnCaricaFile = new Button("Nuovo Caricamento");
+        this.btnCaricaFile = new Button("NUOVO CARICAMENTO");
         this.btnCaricaFile.setStyle(navBtnStyle);
         this.btnCaricaFile.setOnMouseEntered(e -> this.btnCaricaFile.setStyle(navBtnHover));
         this.btnCaricaFile.setOnMouseExited(e -> this.btnCaricaFile.setStyle(navBtnStyle));
@@ -144,7 +151,7 @@ public class HomePageBoundary {
 
         
         
-        this.btnInvia = new Button("Invia");
+        this.btnInvia = new Button("INVIA");
         this.btnInvia.setStyle("-fx-background-color: linear-gradient(to right, #28A745, #218838); -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand; -fx-font-size: 13px; -fx-effect: dropshadow(three-pass-box, rgba(40,167,69,0.35), 8, 0, 0, 3);");
         this.btnInvia.setOnMouseEntered(e -> this.btnInvia.setStyle("-fx-background-color: linear-gradient(to right, #34CE57, #28A745); -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand; -fx-font-size: 13px; -fx-effect: dropshadow(three-pass-box, rgba(40,167,69,0.5), 10, 0, 0, 4);"));
         this.btnInvia.setOnMouseExited(e -> this.btnInvia.setStyle("-fx-background-color: linear-gradient(to right, #28A745, #218838); -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand; -fx-font-size: 13px; -fx-effect: dropshadow(three-pass-box, rgba(40,167,69,0.35), 8, 0, 0, 3);"));
@@ -170,13 +177,13 @@ public class HomePageBoundary {
             }
         });
         
-        this.btnModificaProfilo = new Button("Modifica Profilo");
+        this.btnModificaProfilo = new Button("MODIFICA PROFILO");
         this.btnModificaProfilo.setStyle(navBtnStyle);
         this.btnModificaProfilo.setOnMouseEntered(e -> this.btnModificaProfilo.setStyle(navBtnHover));
         this.btnModificaProfilo.setOnMouseExited(e -> this.btnModificaProfilo.setStyle(navBtnStyle));
         this.btnModificaProfilo.setOnAction(event -> modificaFoto());
         
-        topBar.getChildren().addAll(this.btnCaricaFile, this.btnCondividiContenuti, this.btnInvia, this.btnRiordinaContenuti, this.btnModificaProfilo, this.btnSalva, this.txtCercaUtenti);
+        topBar.getChildren().addAll(this.btnCaricaFile, this.btnCondividiContenuti, this.btnInvia,this.btnInterrompi, this.btnRiordinaContenuti, this.btnModificaProfilo, this.btnSalva, this.txtCercaUtenti);
         header.getChildren().addAll(topHeaderRow, topBar);
 
         // --- CONTENITORE RISORSE ---
@@ -197,7 +204,7 @@ public class HomePageBoundary {
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;");
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        this.btnVisualizzaCondivisioniPassate = new Button("Visualizza Condivisioni Passate");
+        this.btnVisualizzaCondivisioniPassate = new Button("VISUALIZZA CONDIVISIONI PASSATE");
         this.btnVisualizzaCondivisioniPassate.setStyle(navBtnStyle);
         this.btnVisualizzaCondivisioniPassate.setOnMouseEntered(e -> this.btnVisualizzaCondivisioniPassate.setStyle(navBtnHover));
         this.btnVisualizzaCondivisioniPassate.setOnMouseExited(e -> this.btnVisualizzaCondivisioniPassate.setStyle(navBtnStyle));
@@ -419,7 +426,7 @@ public class HomePageBoundary {
         VBox infoArea = (VBox) card.getChildren().get(1);
         HBox actionBox = (HBox) infoArea.getChildren().get(2);
         
-        Button btnModifica = new Button("Modifica");
+        Button btnModifica = new Button("MODIFICA");
         btnModifica.setStyle("-fx-background-color: transparent; -fx-text-fill: #12305C; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold;");
         btnModifica.setOnMouseEntered(e -> btnModifica.setStyle("-fx-background-color: #F4F7FB; -fx-text-fill: #12305C; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 6;"));
         btnModifica.setOnMouseExited(e -> btnModifica.setStyle("-fx-background-color: transparent; -fx-text-fill: #12305C; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold;"));
@@ -433,7 +440,7 @@ public class HomePageBoundary {
         VBox infoArea = (VBox) card.getChildren().get(1);
         HBox actionBox = (HBox) infoArea.getChildren().get(2);
         
-        Button btnRimozione = new Button("Rimuovi");
+        Button btnRimozione = new Button("RIMUOVI");
         btnRimozione.setStyle("-fx-background-color: transparent; -fx-text-fill: #DC3545; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold;");
         btnRimozione.setOnMouseEntered(e -> btnRimozione.setStyle("-fx-background-color: #F8D7DA; -fx-text-fill: #DC3545; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 6;"));
         btnRimozione.setOnMouseExited(e -> btnRimozione.setStyle("-fx-background-color: transparent; -fx-text-fill: #DC3545; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold;"));
@@ -585,10 +592,7 @@ public class HomePageBoundary {
         }
     }
 
-    public void enableSendButton(){
-        this.btnInvia.setVisible(true);
-        this.btnInvia.setDisable(false);
-    }
+ 
 
     public List<ContenutoEntity> getSelectedContent() {
     List<ContenutoEntity> selezionati = new ArrayList<>();
@@ -680,7 +684,7 @@ public class HomePageBoundary {
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
-            Button btnVisualizza = new Button("Visualizza profilo");
+            Button btnVisualizza = new Button("VISUALIZZA PROFILO");
             btnVisualizza.setStyle("-fx-background-color: linear-gradient(to right, #1A4073, #12305C); -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 7 14; -fx-background-radius: 20; -fx-cursor: hand;");
             btnVisualizza.setOnAction(e -> this.hc.visualizzaStudente(utente));
 
@@ -716,10 +720,7 @@ public class HomePageBoundary {
     this.hc.sendToModifica(contenuto,this.rootContainer);
 }
 
-public void disableSendButton(){
-        this.btnInvia.setVisible(false);
-        this.btnInvia.setDisable(true);
-    }
+
     public void disabilitaContentCheckBox(int i){
         if (i < 0 || i >= this.resourcesContainer.getChildren().size()) return;
         
@@ -737,9 +738,84 @@ public void disableSendButton(){
         }
     }
 
+
+    public void enableSendButton(){
+        this.btnInvia.setVisible(true);
+        this.btnInvia.setDisable(false);
+        
+        this.btnInterrompi.setVisible(true);
+        this.btnInterrompi.setDisable(false);
+       
+        this.btnCondividiContenuti.setDisable(true);
+    }
+
+    public void disableSendButton(){
+        this.btnInvia.setVisible(false);
+        this.btnInvia.setDisable(true);
+        // Fa scomparire il pulsante di interruzione
+        this.btnInterrompi.setVisible(false);
+        this.btnInterrompi.setDisable(true);
+        // Ripristina il pulsante di attivazione condivisione
+        this.btnCondividiContenuti.setDisable(false);
+    }
+
+
     public void caricaPaginaCondivisioniPassate() {
         if (this.rootContainer.getScene() != null) {
             this.sendFileControl.recuperaCondivisoni(this.email, this.rootContainer.getScene().getWindow());
         }
     }
+
+    public void interrompiCondivisione(){
+        // Ripristina la visibilità dei bottoni della navbar
+        disableSendButton();
+        this.resetInterfacciaRiordinamento();
+        // Cicla su tutte le card per nascondere e disabilitare le checkbox di selezione
+        int numberOfCards = getNumberOfCards();
+        for(int i = 0; i < numberOfCards; i++){
+            disabilitaContentCheckBox(i);
+        }
+    }
+
+    public void disableCondividiContenuti(){
+        this.btnCondividiContenuti.setDisable(true);
+        btnInterrompi.setVisible(false);
+    }
+
+    public void enableCondividiContenuti(){
+        this.btnCondividiContenuti.setDisable(false);
+        btnInterrompi.setVisible(false);
+    }
+
+
+    public void abilitaInterfacciaRiordinamento() {
+        // Mostra e abilita il pulsante SALVA (coordinato con l'interruzione)
+        this.btnSalva.setVisible(false);
+        this.btnSalva.setDisable(true);
+        // Blocca gli altri flussi per evitare conflitti (es. non puoi condividere mentre riordini)
+        this.btnCondividiContenuti.setDisable(true);
+        this.btnRiordinaContenuti.setDisable(true);
+    }
+
+    // Nasconde e disabilita l'interfaccia di riordinamento (Speculare a disableSendButton)
+    public void disabilitaInterfacciaRiordinamento() {
+        // Nasconde il pulsante SALVA e l'interruzione
+        this.btnSalva.setVisible(true);
+        this.btnSalva.setDisable(false);
+        
+        
+        // Ripristina la navbar principale riabilitando i bottoni standard
+        this.btnCondividiContenuti.setDisable(false);
+        this.btnRiordinaContenuti.setDisable(false);
+    }
+
+    public void resetInterfacciaRiordinamento(){
+        this.btnSalva.setVisible(false);
+        this.btnSalva.setDisable(true);
+         this.btnCondividiContenuti.setDisable(false);
+        this.btnRiordinaContenuti.setDisable(false);
+
+    }
+
+    // Metodo attivato dal click su "Interrompi" durante il riordinamento
 }

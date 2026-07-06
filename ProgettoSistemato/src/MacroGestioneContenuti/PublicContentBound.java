@@ -1,4 +1,4 @@
-package src.MacroGestioneProfilo;
+package src.MacroGestioneContenuti;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -45,9 +45,9 @@ public class PublicContentBound {
         HBox topRow = new HBox(15);
         topRow.setAlignment(Pos.CENTER_LEFT);
 
-        Button btnIndietro = new Button("← Torna alla home");
+        Button btnIndietro = new Button("HOME");
         btnIndietro.setStyle("-fx-background-color: transparent; -fx-border-color: #12305C; -fx-text-fill: #12305C; -fx-font-weight: bold; -fx-padding: 8 12; -fx-cursor: hand;");
-        btnIndietro.setOnAction(e -> this.hc.clickHome(this.rootContainer.getScene().getWindow()));
+        btnIndietro.setOnAction(e -> this.hc.tornaHome(this.rootContainer.getScene().getWindow()));
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -123,6 +123,7 @@ public class PublicContentBound {
         return this.rootContainer;
     }
 
+    
     public void mostraListaContenuti(List<ContenutoEntity> contenuti) {
         this.contenutiContainer.getChildren().clear();
 
@@ -173,7 +174,7 @@ public class PublicContentBound {
             previewArea.getChildren().add(icon);
         }
 
-        previewArea.setOnMouseClicked(e -> this.hc.apriDocumento(contenuto));
+        previewArea.setOnMouseClicked(e -> this.hc.apriDocumento(contenuto,this.rootContainer.getScene().getWindow()));
 
         VBox infoArea = new VBox(10);
         infoArea.setPadding(new Insets(20));

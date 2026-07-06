@@ -1,5 +1,6 @@
-package src.MacroGestioneProfilo;
+package src.MacroGestioneContenuti;
 
+import java.beans.VetoableChangeListenerProxy;
 import java.io.File;
 
 import javafx.geometry.Insets;
@@ -28,6 +29,14 @@ public class ModificaBound {
         this.controller = controller;
         this.contenuto = contenuto;
     }
+    public void mostraModificaBound(Object root) {
+        if(root instanceof VBox){
+            VBox rootContainer= (VBox) root;
+            rootContainer.getChildren().clear();
+            rootContainer.getChildren().add(this.visualizza());
+        }
+       
+    } 
 
     public VBox visualizza() {
         VBox root = new VBox(15);
@@ -53,7 +62,7 @@ public class ModificaBound {
         this.txtDescrizione.setPrefRowCount(4);
         this.txtDescrizione.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #C4D1DF; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 8;");
 
-        Button btnScegliFile = new Button("Sostituisci file");
+        Button btnScegliFile = new Button("SOSTITUISCI FILE");
         btnScegliFile.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 16; -fx-cursor: hand;");
         btnScegliFile.setOnAction(e -> scegliNuovoFile((Stage) btnScegliFile.getScene().getWindow()));
 
@@ -61,11 +70,11 @@ public class ModificaBound {
         this.lblFileSelezionato.setWrapText(true);
         this.lblFileSelezionato.setStyle("-fx-text-fill: #556E8A; -fx-font-family: 'Segoe UI'; -fx-font-size: 12px;");
 
-        Button btnSalva = new Button("Salva Modifiche");
+        Button btnSalva = new Button("SALVA MODIFICHE");
         btnSalva.setStyle("-fx-background-color: #091B33; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;");
-        btnSalva.setOnAction(e -> clickSalvaModifiche());
+        btnSalva.setOnAction(e -> this.confermaModificaContenuto());
 
-        Button btnAnnulla = new Button("Annulla");
+        Button btnAnnulla = new Button("ANNULLA");
         btnAnnulla.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #091B33; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 25; -fx-cursor: hand;");
         btnAnnulla.setOnAction(e -> tornaHome());
 
@@ -104,10 +113,10 @@ public class ModificaBound {
         }
     }
 
-    private void clickSalvaModifiche() {
+    private void confermaModificaContenuto() {
         Window window = this.txtTitolo.getScene().getWindow();
 
-        this.controller.confermaModificaContenuto(
+        this.controller.salvaModificheContenuto(
             this.contenuto,
             this.nuovoFile,
             this.txtTitolo.getText(),
@@ -118,6 +127,6 @@ public class ModificaBound {
 
     private void tornaHome() {
         Window window = this.txtTitolo.getScene().getWindow();
-        this.controller.clickHome(window);
+        this.controller.tornaHome(window);
     }
 }
