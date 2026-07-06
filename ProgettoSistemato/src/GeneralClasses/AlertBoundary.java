@@ -37,7 +37,7 @@ public class AlertBoundary {
         closeButton.setOnMouseEntered(e -> closeButton.setStyle("-fx-background-color: #0A1C3A; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 25; -fx-background-radius: 4; -fx-cursor: hand;"));
         closeButton.setOnMouseExited(e -> closeButton.setStyle("-fx-background-color: #12305C; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 8 25; -fx-background-radius: 4; -fx-cursor: hand;"));
         
-        closeButton.setOnAction(e -> window.close());
+        closeButton.setOnAction(e ->  window.close());
 
         VBox layout = new VBox(20);
         layout.setStyle("-fx-background-color: #F0F4F8;"); // Sfondo grigio-blu freddo e chiaro
@@ -55,13 +55,13 @@ public class AlertBoundary {
     alert.setHeaderText(null);
     alert.setContentText(messaggio);
 
-    ButtonType btnSi = new ButtonType("Sì");
-    ButtonType btnNo = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+    ButtonType btnSi = new ButtonType("SI");
+    ButtonType btnNo = new ButtonType("NO", ButtonBar.ButtonData.CANCEL_CLOSE);
 
     alert.getButtonTypes().setAll(btnSi, btnNo);
 
     Optional<ButtonType> risultato = alert.showAndWait();
 
     return risultato.isPresent() && risultato.get() == btnSi;
-}
+    }
 }
