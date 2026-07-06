@@ -77,7 +77,7 @@ public class condivisioniPassateBound {
             VBox.setVgrow(scrollPane, Priority.ALWAYS);
             
             // --- BOTTONE DI RITORNO ALLA HOME ---
-            Button btnIndietro = new Button("← Torna alla Home");
+            Button btnIndietro = new Button("HOME");
             btnIndietro.setStyle("-fx-background-color: #091B33; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 6px; -fx-padding: 10 20; -fx-cursor: hand;");
             
             btnIndietro.setOnMouseEntered(e -> btnIndietro.setStyle("-fx-background-color: #112D52; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 6px; -fx-padding: 10 20; -fx-cursor: hand;"));
@@ -139,37 +139,39 @@ private HBox creaCardCondivisione(CondivisioneEntity cond) {
         }
 
         // 3. Pulsante di Reindirizzamento a Dropbox
-        Button btnVisualizza = new Button("Link Dropbox");
+        Button btnVisualizza = new Button("LINK DROPBOX");
         btnVisualizza.setStyle("-fx-background-color: #556E8A; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 4px; -fx-padding: 8 14; -fx-cursor: hand;");
         btnVisualizza.setOnMouseEntered(e -> btnVisualizza.setStyle("-fx-background-color: #43586F; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 4px; -fx-padding: 8 14; -fx-cursor: hand;"));
         btnVisualizza.setOnMouseExited(e -> btnVisualizza.setStyle("-fx-background-color: #556E8A; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 4px; -fx-padding: 8 14; -fx-cursor: hand;"));
         
         btnVisualizza.setOnAction(e -> {
-            // Nota: Se la Control non dispone di un metodo di inoltro al browser, 
-            // è possibile aprirlo direttamente tramite java.awt.Desktop se supportato,
-            // oppure delegando al rispettivo servizio esterno.
-            try {
-                if (java.awt.Desktop.isDesktopSupported() && cond.getLinkEsterno() != null) {
-                    java.awt.Desktop.getDesktop().browse(new java.net.URI(cond.getLinkEsterno()));
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+           this.viewDropboxPage(cond);
         });
 
+
         // 4. Pulsante di Rimozione
-        Button btnRimuovi = new Button("Rimuovi");
+        Button btnRimuovi = new Button("RIMUOVI");
         btnRimuovi.setStyle("-fx-background-color: #E04545; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 4px; -fx-padding: 8 14; -fx-cursor: hand;");
         btnRimuovi.setOnMouseEntered(e -> btnRimuovi.setStyle("-fx-background-color: #C63434; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 4px; -fx-padding: 8 14; -fx-cursor: hand;"));
         btnRimuovi.setOnMouseExited(e -> btnRimuovi.setStyle("-fx-background-color: #E04545; -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 4px; -fx-padding: 8 14; -fx-cursor: hand;"));
         
         btnRimuovi.setOnAction(e -> {
-            // Collegamento per la rimozione logica o fisica dell'elemento della condivisione
-            System.out.println("Rimozione richiesta per la condivisione ID: " + cond.getId());
-            // Se necessario, implementare il metodo di eliminazione all'interno di SendFileControl
+           this.eliminaCondivisione(cond,(Stage)card.getScene().getWindow());
         });
 
         card.getChildren().addAll(infoDestinatario, statoBox, btnVisualizza, btnRimuovi);
         return card;
+    }
+
+
+    public void eliminaCondivisione(CondivisioneEntity cond,Stage s){
+
+
+        this.controller.eliminazione(cond,s);
+
+    }
+
+    public void viewDropboxPage(CondivisioneEntity cond){
+        controller. openDropboxPage(cond);
     }
 }

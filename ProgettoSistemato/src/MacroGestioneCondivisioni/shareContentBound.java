@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import src.GeneralClasses.Entities.CondivisioneEntity;
 import src.GeneralClasses.Entities.ContenutoEntity;
 import src.GeneralClasses.Entities.StudenteEntity;
 import src.MacroGestioneContenuti.HomePageBoundary;
@@ -120,13 +121,13 @@ public class shareContentBound extends Application {
         HBox actionsBar = new HBox(15);
         actionsBar.setAlignment(Pos.CENTER_RIGHT);
 
-        this.btnAnnulla = new Button("Annulla");
+        this.btnAnnulla = new Button("ANNULLA");
         this.btnAnnulla.setStyle("-fx-background-color: transparent; -fx-border-color: #C4D1DF; -fx-border-radius: 20; -fx-padding: 10 22; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-text-fill: #556E8A; -fx-cursor: hand; -fx-font-size: 14px;");
         this.btnAnnulla.setOnMouseEntered(e -> this.btnAnnulla.setStyle("-fx-background-color: #F4F7FB; -fx-border-color: #556E8A; -fx-border-radius: 20; -fx-padding: 10 22; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-text-fill: #12305C; -fx-cursor: hand; -fx-font-size: 14px;"));
         this.btnAnnulla.setOnMouseExited(e -> this.btnAnnulla.setStyle("-fx-background-color: transparent; -fx-border-color: #C4D1DF; -fx-border-radius: 20; -fx-padding: 10 22; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-text-fill: #556E8A; -fx-font-size: 14px;"));
         this.btnAnnulla.setOnAction(e-> this.annullaCondivisione());
         // Bottone principale rinominato in "Conferma"
-        this.btnConferma = new Button("Conferma");
+        this.btnConferma = new Button("CONFERMA");
         this.btnConferma.setStyle("-fx-background-color: linear-gradient(to right, #1A4073, #12305C); -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 28; -fx-background-radius: 20; -fx-cursor: hand; -fx-font-size: 14px; -fx-effect: dropshadow(three-pass-box, rgba(18,48,92,0.3), 8, 0, 0, 3);");
         this.btnConferma.setOnMouseEntered(e -> this.btnConferma.setStyle("-fx-background-color: linear-gradient(to right, #235391, #1A4073); -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 28; -fx-background-radius: 20; -fx-cursor: hand; -fx-font-size: 14px; -fx-effect: dropshadow(three-pass-box, rgba(18,48,92,0.45), 10, 0, 0, 4);"));
         this.btnConferma.setOnMouseExited(e -> this.btnConferma.setStyle("-fx-background-color: linear-gradient(to right, #1A4073, #12305C); -fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 28; -fx-background-radius: 20; -fx-cursor: hand; -fx-font-size: 14px; -fx-effect: dropshadow(three-pass-box, rgba(18,48,92,0.3), 8, 0, 0, 3);"));
@@ -136,6 +137,35 @@ public class shareContentBound extends Application {
         this.rootContainer.getChildren().addAll(riepilogoForm, actionsBar);
     }
 
+
+    private void mostraCaricamento() {
+        Scene scene = this.rootContainer.getScene();
+        if (scene == null) return;
+
+        // Recuperiamo il layout principale attuale
+        javafx.scene.Parent rootAttuale = scene.getRoot();
+
+        // Se non è già un contenitore a strati (StackPane), lo avvolgiamo in uno StackPane
+        StackPane contenitoreStrati;
+        if (rootAttuale instanceof StackPane) {
+            contenitoreStrati = (StackPane) rootAttuale;
+        } else {
+            contenitoreStrati = new StackPane(rootAttuale);
+            scene.setRoot(contenitoreStrati);
+        }
+
+        // Creiamo il pannello oscurante di sfondo
+        StackPane overlayCaricamento = new StackPane();
+        overlayCaricamento.setStyle("-fx-background-color: rgba(0, 0, 0, 0.4); -fx-background-radius: 12;");
+
+        // Creiamo lo spinner circolare (ruota di caricamento)
+        ProgressIndicator spinner = new ProgressIndicator();
+        spinner.setMaxSize(60, 60);
+        spinner.setStyle("-fx-progress-color: #ffffff;"); // Ruota bianca ad alto contrasto
+
+        overlayCaricamento.getChildren().add(spinner);
+        contenitoreStrati.getChildren().add(overlayCaricamento);
+    }
     /**
      * Elenca visivamente i titoli dei file selezionati
      */
@@ -177,11 +207,12 @@ public class shareContentBound extends Application {
     }
 
     public void inviaDestinatari(){
+        this.mostraCaricamento();
         sc.setDestinatari(this.txtDestinatari.getText());
         sc.mandaSelezioneContenuti((Stage)this.rootContainer.getScene().getWindow());
     }
 
-    
+
     
     public Button getBtnAnnulla() { return this.btnAnnulla; }
     public List<ContenutoEntity> getContenutiSelezionati() { return this.contenutiSelezionati; }
