@@ -44,10 +44,13 @@ public class ExternalSharingBoundary {
     private class RedirectHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+        this.inviaRichiestaAccesso(exchange);
+    }
+
+    public void inviaRichiestaAccesso(HttpExchange exchange) throws IOException{
             URI requestURI = exchange.getRequestURI();
             String query = requestURI.getQuery();
             String token = null;
-
             if (query != null && query.contains("token=")) {
                 token = query.split("token=")[1].split("&")[0];
             }
@@ -61,20 +64,44 @@ public class ExternalSharingBoundary {
                 return;
             }
 
-            String urlDropbox = control.gestisciVisualizzazione(token);
+             control.verificaEsistenzaCondivisione(exchange,token);
 
-            if (urlDropbox != null) {
-                // Esegue il redirect HTTP 302 verso Dropbox
-                exchange.getResponseHeaders().set("Location", urlDropbox.trim());
-                exchange.sendResponseHeaders(302, -1);
-            } else {
-                String rispostaNonTrovato = "Il link di condivisione e' scaduto, non valido o inesistente.";
-                exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
-                exchange.sendResponseHeaders(404, rispostaNonTrovato.getBytes().length);
-                exchange.getResponseBody().write(rispostaNonTrovato.getBytes());
-            }
-            
+        }
+
+    }
+
+
+    public void MandaErrore(Object exchangeOb) throws IOException{
+        if(exchangeOb instanceof HttpExchange){
+            HttpExchange exchange = (HttpExchange)exchangeOb;
+            String rispostaNonTrovato = "Il link di condivisione e' scaduto, non valido o inesistente.";
+            exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
+            exchange.sendResponseHeaders(404, rispostaNonTrovato.getBytes().length);
+            exchange.getResponseBody().write(rispostaNonTrovato.getBytes());
             exchange.getResponseBody().close();
+        }else{
+            
+            return;
+
         }
     }
+
+    public void Reindirizza(Object exchangeOb,String url) throws IOException{
+        if(exchangeOb instanceof HttpExchange){
+
+            HttpExchange exchange = (HttpExchange)exchangeOb;
+            exchange.getResponseHeaders().set("Location", url.trim());
+            exchange.sendResponseHeaders(302, -1);
+            exchange.getResponseBody().close();
+
+        }else{
+
+            return;
+
+        }
+
+
+    }
+
+    
 }

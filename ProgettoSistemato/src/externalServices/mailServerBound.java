@@ -59,7 +59,7 @@ public class mailServerBound {
         }
     }
 
-public void mailCondivisione(String toEmail, String link) {
+public void mailCondivisione(String email,String toEmail, String link) {
         if (toEmail == null || toEmail.trim().isEmpty() || link == null || link.trim().isEmpty()) {
             System.err.println("Errore: Destinatario o link mancanti. Impossibile inviare la mail.");
             return;
@@ -90,16 +90,15 @@ public void mailCondivisione(String toEmail, String link) {
             message.setSubject("Condivisione Identità Digitale Studente - Istituzione AFAM");
 
             // Contenuto HTML della mail con il link che punta al tuo ShareServerBoundary
-            String htmlContent = "<h3>Consultazione Materiale Artistico e Formativo</h3>"
-                               + "<p>Un utente del sistema di Identità Digitale AFAM ha condiviso con te "
-                               + "una selezione della propria produzione artistica (portfolio o documenti).</p>"
-                               + "<p>Puoi accedere ai contenuti multimediali cliccando sul seguente collegamento sicuro:</p>"
+            String htmlContent = "<h3>Ti è arrivata una condivisione da "+email+" da parte della piattaforma AFAM</h3>"
+                               + "<p>clicca sul seguente link per essere reindirizzato ai contenuti:</p>"
                                + "<p style='margin: 20px 0;'>"
                                + "   <a href='" + link + "' style='background-color: #007bff; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-weight: bold;'>"
                                + "      Visualizza Contenuti Condivisi"
                                + "   </a>"
                                + "</p>"
-                               + "<p style='font-size: 12px; color: #6c757d;'>Se il pulsante non funziona, copia e incolla questo indirizzo nel browser:<br>" + link + "</p>";
+                               + "<p style='font-size: 12px; color: #6c757d;'>Se il pulsante non funziona, copia e incolla questo indirizzo nel browser:<br>" + link + "</p>"
+                               +"Lo studente avrà un riscontro della tua visualizzazione";
 
             message.setContent(htmlContent, "text/html; charset=utf-8");
 
