@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -61,7 +61,7 @@ public class RecuperaPasswordBound {
         emailField.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #C4D1DF; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 10;");
         grid.add(emailField, 1, 2);
 
-        Button btnConferma = new Button("Conferma");
+        Button btnConferma = new Button("CONFERMA");
         btnConferma.setStyle("-fx-background-color: #091B33; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;");
         btnConferma.setOnAction(e -> {
             this.controller.checkEmailNotNull(emailField.getText(), stage);

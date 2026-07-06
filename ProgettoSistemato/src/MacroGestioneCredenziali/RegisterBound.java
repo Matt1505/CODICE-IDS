@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -50,7 +50,7 @@ public class RegisterBound extends Application {
         if(primaryStage instanceof Stage){
             this.stage= (Stage) primaryStage;
             Platform.runLater(()->{
-                stage.setTitle("Piattaforma AFAM - Registrazione Artista"); // Titolo aggiornato
+                stage.setTitle("Piattaforma AFAM - Registrazione"); // Titolo aggiornato
                 
                 this.controller = new RegisterControl();
                 
@@ -79,7 +79,7 @@ public class RegisterBound extends Application {
     private void mostraFormRegistrazione() {
         grid.setStyle("-fx-background-color: #F0F4F8;");
 
-        Text scenetitle = new Text("Piattaforma AFAM\nRegistrazione Nuovo Artista");
+        Text scenetitle = new Text("Piattaforma AFAM\nRegistrazione");
         scenetitle.setFont(Font.font("Georgia", FontWeight.BOLD, 22)); 
         scenetitle.setStyle("-fx-fill: #091B33;");
         grid.add(scenetitle, 0, 0, 2, 1);

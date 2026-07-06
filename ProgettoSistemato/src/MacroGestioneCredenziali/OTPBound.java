@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 import javax.swing.border.StrokeBorder;
 
@@ -75,7 +75,7 @@ public class OTPBound {
         grid.add(otpField, 0, 2, 2, 1);
 
         // Bottone
-        Button verifyBtn = new Button("Verifica Codice");
+        Button verifyBtn = new Button("VERIFICA CODICE");
         verifyBtn.setStyle("-fx-background-color: #12305C; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;");
         
         // Effetti hover per pulsante

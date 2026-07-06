@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -50,7 +50,7 @@ public class LoginBound extends Application {
     private void mostraFormLogin() {
         this.grid.setStyle("-fx-background-color: #F0F4F8;");
 
-        Text scenetitle = new Text("Piattaforma AFAM\nAccesso Area Artisti");
+        Text scenetitle = new Text("Piattaforma AFAM\nAccesso Area Studenti");
         scenetitle.setFont(Font.font("Georgia", FontWeight.BOLD, 24));
         scenetitle.setStyle("-fx-fill: #091B33;");
         this.grid.add(scenetitle, 0, 0, 2, 1);
@@ -79,7 +79,7 @@ public class LoginBound extends Application {
         btn.setOnMouseEntered(e -> btn.setStyle("-fx-background-color: #0A1C3A; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;"));
         btn.setOnMouseExited(e -> btn.setStyle("-fx-background-color: #12305C; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;"));
 
-        Button btnRegistrati = new Button("Nuovo Artista? Registrati");
+        Button btnRegistrati = new Button("Nuovo Studente? Registrati");
         btnRegistrati.setStyle("-fx-background-color: transparent; -fx-text-fill: #16325B; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px; -fx-cursor: hand; -fx-padding: 10 0;");
 
         btnRegistrati.setOnMouseEntered(e -> btnRegistrati.setStyle("-fx-background-color: transparent; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px; -fx-cursor: hand; -fx-padding: 10 0; -fx-underline: true;"));

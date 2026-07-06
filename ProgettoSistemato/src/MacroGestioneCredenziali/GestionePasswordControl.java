@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -8,7 +8,7 @@ import java.util.Random;
 
 import src.GeneralClasses.AlertBoundary;
 import src.GeneralClasses.Entities.OTPEntity;
-import src.MacroGestioneProfilo.HomePageControl;
+import src.MacroGestioneContenuti.HomePageControl;
 import src.externalServices.mailServerBound;
 import src.repository.DBMSBoundary;
 
@@ -65,7 +65,8 @@ public class GestionePasswordControl {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            this.alertBound.alert("Errore durante la verifica dell'email.");
+            alertBound.alert("Errore di sistema, premi OK per riprovare");
+            this.verifyIfEmailExists(windowContext);
         }
     }
 
@@ -82,7 +83,8 @@ public class GestionePasswordControl {
             this.dbBound.addOtp(this.email, String.valueOf(otp));
         } catch (SQLException e) {
             e.printStackTrace();
-            this.alertBound.alert("Errore durante la generazione del codice OTP.");
+            alertBound.alert("Errore di sistema, premi OK per riprovare");
+            this.saveOTP(otp);
         }
     }
 
@@ -99,10 +101,10 @@ public class GestionePasswordControl {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            this.alertBound.alert("Errore durante la verifica dell'OTP.");
+            alertBound.alert("Errore di sistema, premi OK per riprovare");
+            this.requestGeneratedOTP(email, otp, windowContext);
         }
     }
-
     private void verifyOTPs(OTPEntity otpDalDb, Object windowContext) {
         if (otpDalDb != null) {
             java.sql.Timestamp createdAt = otpDalDb.getTs();
@@ -147,6 +149,8 @@ public class GestionePasswordControl {
             this.dbBound.deleteOTP(email);
         } catch (SQLException e) {
             e.printStackTrace();
+            alertBound.alert("Errore di sistema, premi OK per riprovare");
+            this.removeOTP(email);
         }
     }
 
@@ -163,8 +167,9 @@ public class GestionePasswordControl {
     // UpdatePasswordBound -> GestionePasswordControl
     // =========================================================
 
-    public void sendCredentials(String password, String ripetiPassword, Object windowContext) {
-        if (password == null || password.isEmpty() || ripetiPassword == null || ripetiPassword.isEmpty()) {
+
+    public void verifyCredentials(String password, String ripetiPassword, Object windowContext){
+         if (password == null || password.isEmpty() || ripetiPassword == null || ripetiPassword.isEmpty()) {
             this.alertBound.alert("ERRORE, tutti i campi devono essere compilati");
             return;
         }
@@ -180,6 +185,10 @@ public class GestionePasswordControl {
             this.alertBound.alert("La password deve contenere almeno una lettera maiuscola e un carattere speciale");
             return;
         }
+        saveCredentials(password, ripetiPassword, windowContext);
+    }
+    public void saveCredentials(String password, String ripetiPassword, Object windowContext) {
+       
 
         String passwordHash = this.hashPassword(password);
         this.sendPassword(passwordHash, windowContext);
@@ -218,6 +227,11 @@ public class GestionePasswordControl {
             throw new RuntimeException(e);
         }
     }
+    public void tornaHome(Object windowContext){
+        HomePageControl homePageControl = new HomePageControl(this.email);
+        homePageControl.createHomePageBoundary(this.email, windowContext);
+    }
+
 
     private void sendPassword(String passwordHash, Object windowContext) {
         try {
@@ -225,12 +239,23 @@ public class GestionePasswordControl {
 
             this.alertBound.alert("Password aggiornata con successo.");
 
-            HomePageControl homePageControl = new HomePageControl(this.email);
-            homePageControl.createHomePageBoundary(this.email, windowContext);
+            this.tornaHome(windowContext);
 
         } catch (SQLException e) {
             e.printStackTrace();
-            this.alertBound.alert("Errore durante l'aggiornamento della password.");
+            alertBound.alert("Errore di sistema, premi OK per riprovare");
+            this.sendPassword(passwordHash, windowContext);
         }
+    }
+    public void updatePwd(String email,Object windowContext) {
+        if(this.email==null){
+            UpdatePasswordBound updatePasswordBound = new UpdatePasswordBound(email);
+            updatePasswordBound.visualizza(windowContext);
+        }else{
+            UpdatePasswordBound updatePasswordBound = new UpdatePasswordBound(this.email);
+            updatePasswordBound.visualizza(windowContext);
+        }
+        
+        
     }
 }

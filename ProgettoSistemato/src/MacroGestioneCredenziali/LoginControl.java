@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 
 import java.math.BigInteger;
@@ -11,8 +11,8 @@ import src.repository.DBMSBoundary;
 import src.externalServices.mailServerBound;
 import src.GeneralClasses.AlertBoundary;
 import src.GeneralClasses.Entities.OTPEntity;
-import src.MacroGestioneProfilo.HomePageBoundary;
-import src.MacroGestioneProfilo.HomePageControl;
+import src.MacroGestioneContenuti.HomePageBoundary;
+import src.MacroGestioneContenuti.HomePageControl;
 import javafx.application.Platform;
 
 public class LoginControl {
@@ -61,10 +61,6 @@ public class LoginControl {
     private void sendRequestCredentials(Object windowContext) {
         if (this.dbBound.getCredentials(this.email, this.pw)) {
             
-            if (this.email.equalsIgnoreCase("mattmo1505@gmail.com") || this.email.equalsIgnoreCase("dircellobattino@gmail.com")) {
-            this.redirectToHomepage(windowContext);
-            return;
-            }
 
             this.createOTP(windowContext);
             OTPBound otpBound = new OTPBound(this, this.email);
@@ -94,6 +90,8 @@ public class LoginControl {
             
         } catch (SQLException e) {
             e.printStackTrace();
+            ab.alert("Errore di sistema, premi OK per riprovare");
+            this.saveOTP(OTP);
         }
     }
 
@@ -102,6 +100,8 @@ public class LoginControl {
             dbBound.deleteOTP(email);
         } catch (SQLException e) {
             e.printStackTrace();
+            ab.alert("Errore di sistema, premi OK per riprovare");
+            this.removeOTP(email);
         }
     }
     
@@ -121,6 +121,8 @@ public class LoginControl {
              verifyOTPs(dbBound.checkOTPExistance(this.email, otp),windowContext);
         } catch (SQLException e) {
             e.printStackTrace();
+            ab.alert("Errore di sistema, premi OK per riprovare");
+            this.requestGeneratedOTP(email, otp, windowContext);
         }
     }
     

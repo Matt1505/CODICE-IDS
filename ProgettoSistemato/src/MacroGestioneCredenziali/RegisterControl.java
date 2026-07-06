@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 
 
@@ -138,6 +138,7 @@ public class RegisterControl {
             this.ab.alert("otp verificato con successo!");
         }catch(SQLException e){
             e.printStackTrace();
+            ab.alert("Errore di sistema, premi OK per riprovare");
         }
     }
 

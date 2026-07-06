@@ -1,4 +1,4 @@
-package src.gestioneCredenziali;
+package src.MacroGestioneCredenziali;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -67,17 +67,21 @@ public class UpdatePasswordBound {
         ripetiPasswordField.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #C4D1DF; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 10;");
         grid.add(ripetiPasswordField, 1, 2);
 
-        Button btnAggiorna = new Button("Aggiorna password");
+        // --- INNESTO MINIMO: BOTTONE TORNA HOME ---
+        Button btnTornaHome = new Button("HOME");
+        btnTornaHome.setStyle("-fx-background-color: transparent; -fx-border-color: #091B33; -fx-border-width: 1px; -fx-border-radius: 4; -fx-text-fill: #091B33; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 20; -fx-cursor: hand;");
+        btnTornaHome.setOnAction(e -> { this.controller.tornaHome(stage); });
+        grid.add(btnTornaHome, 0, 3); // Colonna 0, Riga 3 (sotto la Label)
+
+        Button btnAggiorna = new Button("AGGIORNA PASSWORD");
         btnAggiorna.setStyle("-fx-background-color: #091B33; -fx-text-fill: #FFFFFF; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 4; -fx-cursor: hand;");
-        btnAggiorna.setOnAction(e -> {
-            this.controller.sendCredentials(
-                passwordField.getText(),
-                ripetiPasswordField.getText(),
-                stage
-            );
-        });
-        grid.add(btnAggiorna, 1, 3);
+        btnAggiorna.setOnAction(e -> { this.sendCredentials(passwordField.getText(), ripetiPasswordField.getText(), stage); });
+        grid.add(btnAggiorna, 1, 3); // Colonna 1, Riga 3 (sotto il PasswordField)
 
         return new Scene(grid, 500, 400);
+    }
+
+    private void sendCredentials(String p, String rp, Object stage){
+        this.controller.verifyCredentials(p, rp, stage);
     }
 }
